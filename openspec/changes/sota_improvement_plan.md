@@ -45,7 +45,7 @@
    - **计划**：引入 Leiden 算法在 Neo4j 中识别 M-Flow 与 OmniCPG 的混合图谱社区（例如将 "订单服务层代码" + "结算业务概念" 划分为同一社区）。并使用大模型对每个社区生成不同层级（Levels）的 Summary。
    - **SOTA 依据**：此举直接对标微软 GraphRAG，彻底解决系统遇到 "整个再保系统的核心模块是什么" 这种全局性提问时的无力感。
 2. **跨过程污点分析引擎升级 (Inter-Procedural Taint Tracking)**：
-   - **计划**：在 OmniCPG 中实现基于属性图的摘要式 (Summary-based) 或需求驱动的 (Demand-driven) 跨过程数据流分析算法。为关键的边（如 `CALLS` 和 `REACHES`）增加更严格的别名指向分析 (Alias Resolution)。
+   - **计划**：在 OmniCPG 中实现基于属性图的摘要式 (Summary-based) 或需求驱动的 (Demand-driven) 跨过程数据流分析算法。为关键的边（如 `CALLS` 和 `REACHES`）增加更严格的别名指向分析 (Alias Resolution)。具体实现边界与典型断裂场景（如 Object Wrapping、集合存取、多态回调等）的深度分析，参见 [data_flow_improvements_proposal.md](file:///d:/workspace/mflow-cpg/openspec/changes/data_flow_improvements_proposal.md)。
 
 ### 阶段三：长期演进 —— 图神经网络 (GNN) 与代码表示学习
 *预计收益：实现毫秒级的漏洞相似度匹配与代码自动生成对齐。*

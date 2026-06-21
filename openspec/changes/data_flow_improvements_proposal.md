@@ -96,6 +96,8 @@ public void testPolymorphism(String sourceInput) {
 
 ## 演进路线建议 (Roadmap)
 
+本方案的各项优化排期已整合并同步合入项目整体的 [sota_improvement_plan.md](file:///d:/workspace/mflow-cpg/openspec/changes/sota_improvement_plan.md) 演进路线图中的**阶段二**。
+
 如果要在 OmniCPG 中修复这些问题，建议按照以下优先级排期：
 
 1. **短期 (Quick Win)**：实现**集合容器的粗粒度污点传染**。在 DFG 生成器的后处理阶段，拦截 `add/put` 和 `get`，建立跳板边。
