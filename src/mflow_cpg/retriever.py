@@ -39,7 +39,7 @@ class CPGRetriever(BaseRetriever):
             MATCH (e)-[:IMPLEMENTED_BY|same_entity_as]->(c:Node)
             RETURN c.id AS cpg_node_id, labels(c) AS labels, c.name AS name, c.fqn AS fqn
             """
-            rows = await db.query(mapping_query, query=query)
+            rows = await db.query(mapping_query, {"query": query})
             
             cpg_nodes = []
             if rows:
@@ -54,7 +54,7 @@ class CPGRetriever(BaseRetriever):
                 RETURN c.id AS cpg_node_id, labels(c) AS labels, c.name AS name
                 LIMIT 5
                 """
-                rows = await db.query(symbol_query, query=query)
+                rows = await db.query(symbol_query, {"query": query})
                 for row in rows:
                     cpg_nodes.append((row["cpg_node_id"], row["name"], row["labels"]))
 
@@ -66,7 +66,7 @@ class CPGRetriever(BaseRetriever):
                 LIMIT 3
                 """
                 try:
-                    rows = await db.query(fulltext_query, query=query)
+                    rows = await db.query(fulltext_query, {"query": query})
                     for row in rows:
                         cpg_nodes.append((row["cpg_node_id"], row["name"], row["labels"]))
                 except Exception:
@@ -92,7 +92,7 @@ class CPGRetriever(BaseRetriever):
                            collect(distinct caller.fqn) AS callers,
                            collect(distinct callee.fqn) AS callees
                     """
-                    m_details = await db.query(method_query, node_id=node_id)
+                    m_details = await db.query(method_query, {"node_id": node_id})
                     if m_details:
                         det = m_details[0]
                         code = det.get("code") or det.get("source_code") or "No source code available"
@@ -112,15 +112,15 @@ class CPGRetriever(BaseRetriever):
                     # Class details: fields, methods, subclass relations
                     class_query = """
                     MATCH (c:Node {id: $node_id})
-                    OPTIONAL MATCH (c)-[:PARENT_OF]->(m:Method)
-                    OPTIONAL MATCH (c)-[:PARENT_OF]->(f:Field)
+                    OPTIONAL MATCH (c)-[:PARENT_OF|CONTAINS]->(m:Method)
+                    OPTIONAL MATCH (c)-[:PARENT_OF|CONTAINS]->(f:Field)
                     RETURN c.name AS name, c.fqn AS fqn, c.superclass AS superclass,
                            c.semantic_intent AS intent,
                            c.semantic_side_effects AS side_effects,
                            collect(distinct m.name) AS methods,
                            collect(distinct f.name) AS fields
                     """
-                    c_details = await db.query(class_query, node_id=node_id)
+                    c_details = await db.query(class_query, {"node_id": node_id})
                     if c_details:
                         det = c_details[0]
                         intent = det.get("intent") or "No semantic intent summary available"
@@ -142,7 +142,7 @@ class CPGRetriever(BaseRetriever):
                     MATCH (n:Node {id: $node_id})
                     RETURN n.name AS name, n.type AS type, n.file_path AS file_path, n.code AS code
                     """
-                    n_details = await db.query(generic_query, node_id=node_id)
+                    n_details = await db.query(generic_query, {"node_id": node_id})
                     if n_details:
                         det = n_details[0]
                         formatted_contexts.append(

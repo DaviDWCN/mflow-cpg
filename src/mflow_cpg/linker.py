@@ -52,10 +52,10 @@ class ConceptToCodeLinker:
                 MATCH (c:Node)
                 WHERE c.project_id = $project_id
                   AND (c:Class OR c:Method OR c:Field OR c:Module)
-                  AND (c.name = $match_name OR c.fqn ENDS_WITH $match_name)
+                  AND (c.name = $match_name OR c.fqn ENDS WITH $match_name)
                 RETURN c.id AS id, c.name AS name, labels(c) AS labels
                 """
-                code_nodes = await self.adapter.query(code_match_query, project_id=project_id, match_name=match_name)
+                code_nodes = await self.adapter.query(code_match_query, {"project_id": project_id, "match_name": match_name})
                 
                 if not code_nodes:
                     # Try a substring search if the entity name looks like a code class/method name (e.g. CamelCase or snake_case)
@@ -68,7 +68,7 @@ class ConceptToCodeLinker:
                           AND c.name CONTAINS $match_name
                         RETURN c.id AS id, c.name AS name, labels(c) AS labels
                         """
-                        code_nodes = await self.adapter.query(fuzzy_match_query, project_id=project_id, match_name=match_name)
+                        code_nodes = await self.adapter.query(fuzzy_match_query, {"project_id": project_id, "match_name": match_name})
 
                 # 3. Create edges
                 if code_nodes:
@@ -84,8 +84,7 @@ class ConceptToCodeLinker:
                         """
                         await self.adapter.query(
                             link_query, 
-                            entity_name=name, 
-                            cpg_node_id=cpg_node_id
+                            {"entity_name": name, "cpg_node_id": cpg_node_id}
                         )
                         links_created += 1
                         logger.info(f"Linked Entity '{name}' <-> Code Node '{c_node['name']}' ({cpg_node_id})")
