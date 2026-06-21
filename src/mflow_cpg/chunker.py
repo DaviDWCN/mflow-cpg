@@ -74,6 +74,14 @@ class SyntaxAwareCodeChunker(Chunker):
 
             nodes, edges = orchestrator.analyze(temp_dir)
             
+            # Pre-compute Class nodes map to attach context to Methods
+            class_nodes = {n.id: n for n in nodes if "Class" in n.labels}
+            # Find which Class owns each Method using PARENT_OF edges
+            method_to_class = {}
+            for edge in edges:
+                if edge.edge_type == "PARENT_OF" and edge.source_id in class_nodes:
+                    method_to_class[edge.target_id] = class_nodes[edge.source_id]
+
             # Yield ContentFragments for Classes and Methods
             chunk_index = 0
             for node in nodes:
@@ -94,7 +102,20 @@ class SyntaxAwareCodeChunker(Chunker):
                 fqn_or_name = node.properties.get("fqn") or node.properties.get("name") or "unknown"
                 node_file_path = os.path.basename(doc_name or node.properties.get("file_path") or "unknown")
                 comment_style = "#" if ext == ".py" else "//"
-                context_prefix = f"{comment_style} Context: defined in {fqn_or_name} in {node_file_path}\n"
+
+                context_parts = [f"{comment_style} Context: defined in {fqn_or_name} in {node_file_path}"]
+
+                # Contextual Retrieval: Append enclosing Class info to Method
+                if "Method" in labels and node.id in method_to_class:
+                    parent_class = method_to_class[node.id]
+                    cls_name = parent_class.properties.get("name")
+                    cls_fqn = parent_class.properties.get("fqn")
+                    if cls_name:
+                        context_parts.append(f"{comment_style} Enclosing Class: {cls_fqn or cls_name}")
+                        # If intent/summary was available, we could append it here,
+                        # but in-memory Orchestrator without Neo4j enrichment won't have LLM intents yet.
+
+                context_prefix = "\n".join(context_parts) + "\n"
                 code_text = context_prefix + code_text
 
                 # Add CPG metadata
