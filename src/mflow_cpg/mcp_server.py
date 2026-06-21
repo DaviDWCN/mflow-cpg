@@ -35,6 +35,12 @@ try:
 except ImportError as e:
     logger.warning(f"Failed to import mcp_server_omnicpg: {e}. CPG tools will be unavailable.")
 
+# Register GraphRAG retrievers
+try:
+    import mflow_cpg.graph_rag
+except ImportError as e:
+    logger.warning(f"Failed to import graph_rag module: {e}")
+
 
 @app.list_tools()
 async def list_tools() -> list[Tool]:
@@ -56,7 +62,7 @@ async def list_tools() -> list[Tool]:
                     "query": {"type": "string", "description": "The natural language query or code symbol to search for."},
                     "recall_mode": {
                         "type": "string",
-                        "description": "Recall strategy: CODE_GRAPH (default), EPISODIC, PROCEDURAL, TRIPLET_COMPLETION, CHUNKS_LEXICAL.",
+                        "description": "Recall strategy: CODE_GRAPH (default), GRAPH_RAG, EPISODIC, PROCEDURAL, TRIPLET_COMPLETION, CHUNKS_LEXICAL.",
                         "default": "CODE_GRAPH"
                     },
                     "top_k": {"type": "integer", "description": "Number of results to retrieve.", "default": 5}
@@ -81,6 +87,17 @@ async def list_tools() -> list[Tool]:
         Tool(
             name="concept_to_code_link",
             description="Establish bidirectional links in Neo4j between M-Flow business concepts and OmniCPG code structures.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "project_id": {"type": "string", "description": "The project isolation ID."}
+                },
+                "required": ["project_id"]
+            }
+        ),
+        Tool(
+            name="mflow_graph_rag_enrich",
+            description="Run community detection and generate LLM community summaries for GraphRAG.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -158,6 +175,25 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         except Exception as e:
             logger.error(f"Linking failed: {e}", exc_info=True)
             return [TextContent(type="text", text=f"Linking failed: {e}")]
+
+    elif name == "mflow_graph_rag_enrich":
+        project_id = arguments.get("project_id", "")
+        from m_flow.adapters.graph import get_graph_provider
+        from mflow_cpg.graph_rag import GraphRAGManager
+
+        try:
+            db = await get_graph_provider()
+            manager = GraphRAGManager(db)
+            comms_count = manager.detect_communities(project_id)
+            summaries_result = manager.generate_community_summaries(project_id)
+            res = {
+                "communities_detected": comms_count,
+                "summaries_generated": summaries_result.get("communities_summarized", 0)
+            }
+            return [TextContent(type="text", text=json.dumps(res, indent=2))]
+        except Exception as e:
+            logger.error(f"GraphRAG enrichment failed: {e}", exc_info=True)
+            return [TextContent(type="text", text=f"GraphRAG enrichment failed: {e}")]
 
     # Fallback to OmniCPG tools
     if omni_mcp is not None:

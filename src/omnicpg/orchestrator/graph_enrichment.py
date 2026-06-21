@@ -1038,3 +1038,159 @@ def enrich_llm_architectural_roles(
     }
     logger.info("LLM role classification: %d/%d nodes enriched", updated, len(rows))
     return summary_stats
+
+
+def materialize_cha_polymorphism_edges(
+    adapter: Neo4jAdapter,
+    project_id: str,
+) -> dict[str, Any]:
+    """Materialize virtual CALLS and REACHES edges for polymorphic method calls.
+
+    Using the Class Hierarchy Analysis (CHA) approach:
+    1. Find all calls to interface/base class methods.
+    2. Traverse IMPLEMENTS relationships to find concrete subclasses/implementations.
+    3. If a subclass overrides/implements the target method (same name), build:
+       - A virtual CALLS edge from caller to override method.
+       - REACHES edges from call site arguments to override method parameters.
+       - REACHES edges from override method returns to the call site node.
+    """
+    rows = adapter.query(
+        """
+        MATCH (caller:Method)-[c:CALLS]->(callee:Method)
+        WHERE caller.project_id = $project_id AND callee.project_id = $project_id
+        MATCH (base:Node)-[:PARENT_OF]->(callee)
+        WHERE base.project_id = $project_id AND (base:Class OR base:Interface)
+        MATCH (impl:Node)-[:IMPLEMENTS*]->(base)
+        WHERE impl.project_id = $project_id AND (impl:Class OR impl:Interface)
+        MATCH (impl)-[:PARENT_OF]->(override:Method)
+        WHERE override.project_id = $project_id AND override.name = callee.name
+        RETURN DISTINCT
+               caller.id AS caller_id,
+               callee.name AS callee_name,
+               c.callsite_id AS callsite_id,
+               override.id AS override_id
+        """,
+        project_id=project_id,
+    )
+
+    calls_created = 0
+    reaches_created = 0
+
+    for row in rows:
+        caller_id = row["caller_id"]
+        callee_name = row["callee_name"]
+        callsite_id = row["callsite_id"]
+        override_id = row["override_id"]
+
+        if not callsite_id or not override_id:
+            continue
+
+        # 1. Create the virtual CALLS edge
+        adapter.query(
+            """
+            MATCH (caller:Node {id: $caller_id})
+            MATCH (override:Node {id: $override_id})
+            MERGE (caller)-[r:CALLS]->(override)
+            SET r.project_id = $project_id,
+                r.callsite_id = $callsite_id,
+                r.callee = $callee_name,
+                r.resolution = "cha_polymorphism",
+                r.virtual = true
+            """,
+            caller_id=caller_id,
+            override_id=override_id,
+            project_id=project_id,
+            callsite_id=callsite_id,
+            callee_name=callee_name,
+        )
+        calls_created += 1
+
+        # 2. Bind arguments of the callsite to parameters of the override method
+        # Fetch callsite arguments
+        arg_rows = adapter.query(
+            """
+            MATCH (callsite:Node {id: $callsite_id})-[:PARENT_OF]->(arg_list:Node {type: 'argument_list'})-[:PARENT_OF]->(arg:Node)
+            WHERE NOT arg.type IN ['(', ')', ',']
+            RETURN arg.id AS id,
+                   coalesce(arg.line_start, 0) AS line_start,
+                   coalesce(arg.column_start, 0) AS column_start
+            """,
+            callsite_id=callsite_id,
+        )
+        # Fetch override parameters
+        param_rows = adapter.query(
+            """
+            MATCH (override:Node {id: $override_id})-[:PARENT_OF*1..2]->(param:Node)
+            WHERE "Parameter" IN labels(param) OR param.type = 'formal_parameter'
+            RETURN param.id AS id,
+                   param.name AS name,
+                   coalesce(param.line_start, 0) AS line_start,
+                   coalesce(param.column_start, 0) AS column_start
+            """,
+            override_id=override_id,
+        )
+
+        # Sort positional arguments and parameters
+        sorted_args = sorted(arg_rows, key=lambda x: (int(x["line_start"]), int(x["column_start"])))
+        sorted_params = sorted(param_rows, key=lambda x: (int(x["line_start"]), int(x["column_start"])))
+
+        # Positional binding
+        for i, arg in enumerate(sorted_args):
+            if i < len(sorted_params):
+                param = sorted_params[i]
+                adapter.query(
+                    """
+                    MATCH (arg:Node {id: $arg_id})
+                    MATCH (param:Node {id: $param_id})
+                    MERGE (arg)-[r:REACHES]->(param)
+                    SET r.project_id = $project_id,
+                        r.variable = $param_name,
+                        r.interprocedural = "argument",
+                        r.index = $index,
+                        r.virtual = true
+                    """,
+                    arg_id=arg["id"],
+                    param_id=param["id"],
+                    project_id=project_id,
+                    param_name=param.get("name") or f"p{i}",
+                    index=str(i),
+                )
+                reaches_created += 1
+
+        # 3. Bind return statements of override to the callsite
+        ret_rows = adapter.query(
+            """
+            MATCH p = (override:Node {id: $override_id})-[:PARENT_OF*]->(ret:Node)
+            WHERE "Return" IN labels(ret)
+              AND NONE(n IN nodes(p)[1..-1] WHERE "Class" IN labels(n) OR "Method" IN labels(n))
+            RETURN ret.id AS id
+            """,
+            override_id=override_id,
+        )
+        for ret in ret_rows:
+            adapter.query(
+                """
+                MATCH (ret:Node {id: $ret_id})
+                MATCH (callsite:Node {id: $callsite_id})
+                MERGE (ret)-[r:REACHES]->(callsite)
+                SET r.project_id = $project_id,
+                    r.interprocedural = "return",
+                    r.virtual = true
+                """,
+                ret_id=ret["id"],
+                callsite_id=callsite_id,
+                project_id=project_id,
+            )
+            reaches_created += 1
+
+    summary = {
+        "virtual_calls_created": calls_created,
+        "virtual_reaches_created": reaches_created,
+    }
+    logger.info(
+        "CHA Polymorphism materialization: %d CALLS, %d REACHES edges created",
+        calls_created,
+        reaches_created,
+    )
+    return summary
+

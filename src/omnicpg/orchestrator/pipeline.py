@@ -260,16 +260,22 @@ def run_analysis_pipeline(
         # full-text index that powers keyword search for AI agents.
         inheritance_summary: dict[str, Any] = {}
         parameter_summary: dict[str, Any] = {}
+        cha_summary: dict[str, Any] = {}
         role_summary: dict[str, Any] = {}
         try:
             from omnicpg.orchestrator.graph_enrichment import (
                 classify_architectural_roles,
                 materialize_inheritance_edges,
                 materialize_java_parameter_reaches_edges,
+                materialize_cha_polymorphism_edges,
             )
 
             inheritance_summary = materialize_inheritance_edges(adapter, project_id)
             parameter_summary = materialize_java_parameter_reaches_edges(adapter, project_id)
+            try:
+                cha_summary = materialize_cha_polymorphism_edges(adapter, project_id)
+            except Exception as e:
+                logger.warning(f"CHA Polymorphism edge materialization failed: {e}", exc_info=True)
             role_summary = classify_architectural_roles(adapter, project_id)
 
             try:
@@ -312,6 +318,8 @@ def run_analysis_pipeline(
             "total_edges": total_edges,
             "inheritance_edges": inheritance_summary.get("edges_created", 0),
             "parameter_reaches_edges": parameter_summary.get("edges_materialized", 0),
+            "virtual_calls_edges": cha_summary.get("virtual_calls_created", 0),
+            "virtual_reaches_edges": cha_summary.get("virtual_reaches_created", 0),
             "classified_roles": role_summary.get("classes_classified", 0),
             "path": path,
             "level": analysis_level.name,

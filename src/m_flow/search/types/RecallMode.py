@@ -29,3 +29,6 @@ class RecallMode(str, Enum):
 
     # Unified code property graph retrieval
     CODE_GRAPH = "CODE_GRAPH"
+
+    # Hierarchical GraphRAG retrieval
+    GRAPH_RAG = "GRAPH_RAG"
