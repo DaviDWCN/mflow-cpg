@@ -25,7 +25,7 @@ When query has strong procedural intent:
 
 import asyncio
 import os
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 from dataclasses import dataclass, field
 
 from m_flow.shared.logging_utils import get_logger
@@ -271,6 +271,12 @@ class MemoryOrchestrator:
         # Merge edges
         result.merged_edges = self._merge_edges(result)
 
+        # Apply reranking if enabled
+        from mflow_cpg.config import get_config
+        config = get_config()
+        if config.reranker and config.reranker.enabled:
+            result.merged_edges = await self._rerank_edges(query, result.merged_edges, config.reranker)
+
         # Build partitioned blocks
         await self._build_partition_blocks(result)
 
@@ -485,6 +491,76 @@ class MemoryOrchestrator:
         tgt_id = str(edge.node2.id) if edge.node2 else ""
         rel = edge.attributes.get("relationship_name", "")
         return f"{src_id}_{tgt_id}_{rel}"
+
+    async def _rerank_edges(
+        self,
+        query: str,
+        edges: List[Edge],
+        settings: Any,
+    ) -> List[Edge]:
+        """
+        Rerank retrieved edges using a late interaction reranker API.
+        """
+        if not edges:
+            return []
+
+        # Convert each edge to its text representation
+        documents = []
+        for e in edges:
+            from m_flow.knowledge.graph_ops.utils.resolve_edges_to_text import (
+                resolve_edges_to_text,
+            )
+            txt = await resolve_edges_to_text([e])
+            documents.append(txt)
+
+        # Call the rerank endpoint
+        try:
+            import aiohttp
+            url = settings.endpoint
+            if not url.endswith("/rerank"):
+                if url.endswith("/"):
+                    url += "rerank"
+                else:
+                    url += "/rerank"
+
+            headers = {
+                "Content-Type": "application/json"
+            }
+            if settings.api_key:
+                headers["Authorization"] = f"Bearer {settings.api_key}"
+
+            payload = {
+                "model": settings.model,
+                "query": query,
+                "documents": documents,
+                "top_n": settings.top_n
+            }
+
+            logger.info(f"[orchestrator] Calling reranker at {url} (model={settings.model}) for {len(edges)} edges...")
+            
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=payload, headers=headers, timeout=10) as resp:
+                    if resp.status == 200:
+                        res_json = await resp.json()
+                        results = res_json.get("results", [])
+                        reranked_edges = []
+                        for item in results:
+                            idx = item.get("index")
+                            if idx is not None and 0 <= idx < len(edges):
+                                reranked_edges.append(edges[idx])
+                        
+                        if not reranked_edges:
+                            return edges
+                        
+                        return reranked_edges
+                    else:
+                        resp_text = await resp.text()
+                        logger.warning(f"[orchestrator] Reranker failed with status {resp.status}: {resp_text}")
+                        return edges
+        except Exception as e:
+            logger.warning(f"[orchestrator] Error during late interaction reranking: {e}")
+            return edges
+
 
 
 # -----------------------------

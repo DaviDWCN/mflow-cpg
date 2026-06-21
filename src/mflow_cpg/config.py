@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 import yaml
 from pydantic import BaseModel, Field
 
@@ -57,12 +57,22 @@ class SemanticAnalysisConfig(BaseModel):
     embedding_model: str = "nomic-embed-text"
     levels: List[SemanticLevelConfig] = Field(default_factory=list)
 
+class RerankerSettings(BaseModel):
+    enabled: bool = False
+    provider: str = "ollama"
+    model: str = "bge-reranker-v2-m3"
+    endpoint: str = "http://localhost:11434/v1"
+    api_key: str = "ollama"
+    top_n: int = 10
+
 class UnifiedConfig(BaseModel):
     neo4j: Neo4jConfig = Field(default_factory=Neo4jConfig)
     llm: LLMConfig = Field(default_factory=LLMConfig)
     embedding: EmbeddingConfig = Field(default_factory=EmbeddingConfig)
     cpg: CPGConfig = Field(default_factory=CPGConfig)
     semantic_analysis: SemanticAnalysisConfig = Field(default_factory=SemanticAnalysisConfig)
+    reranker: RerankerSettings = Field(default_factory=RerankerSettings)
+
 
 
 class ConfigManager:

@@ -94,6 +94,9 @@ class InterProceduralDFGBuilder:
         # 3. Bridge field writes to field reads within the same class
         new_edges.extend(self._bind_field_writes_to_reads())
 
+        # 4. Collection Taint Infection (Coarse-grained)
+        new_edges.extend(self._bind_collection_taint_infection())
+
         logger.info("Java Inter-procedural DFG: generated %d REACHES edges", len(new_edges))
         return new_edges
 
@@ -276,4 +279,111 @@ class InterProceduralDFGBuilder:
                             ),
                         )
                     )
+        return edges
+
+    def _find_receiver_node(self, call_node: CPGNode, receiver_name: str) -> CPGNode | None:
+        """Find the child node of call_node representing the receiver variable."""
+        child_ids = self._parent_children.get(call_node.id, [])
+        for cid in child_ids:
+            child = self._node_map.get(cid)
+            if child:
+                code = str(child.properties.get("code", "")).strip()
+                if code == receiver_name:
+                    return child
+                # Fallback: check descendants
+                visited = set()
+                descendants = [child]
+                while descendants:
+                    curr = descendants.pop()
+                    if curr.id in visited:
+                        continue
+                    visited.add(curr.id)
+                    curr_code = str(curr.properties.get("code", "")).strip()
+                    if curr_code == receiver_name and curr.properties.get("type") in {"identifier", "field_access"}:
+                        return curr
+                    desc_ids = self._parent_children.get(curr.id, [])
+                    for did in desc_ids:
+                        dnode = self._node_map.get(did)
+                        if dnode:
+                            descendants.append(dnode)
+        return None
+
+    def _bind_collection_taint_infection(self) -> list[CPGEdge]:
+        """Connect write arguments to receiver collection and receiver collection to read callsites."""
+        edges: list[CPGEdge] = []
+        
+        # Collection write methods
+        write_methods = {"add", "put", "addAll", "putAll", "push", "insert", "addElement"}
+        # Collection read methods
+        read_methods = {"get", "remove", "pop", "peek", "elementAt"}
+
+        for node in self._node_map.values():
+            ntype = node.properties.get("type")
+            if ntype != "method_invocation":
+                continue
+            
+            # Extract method name and receiver
+            method_name = node.properties.get("name")
+            receiver = node.properties.get("receiver")
+            if not method_name or not receiver:
+                continue
+            
+            method_name_str = str(method_name)
+            receiver_str = str(receiver).strip()
+            
+            if method_name_str in write_methods:
+                # 1. Collection Write: source -> collection
+                receiver_node = self._find_receiver_node(node, receiver_str)
+                if not receiver_node:
+                    continue
+                
+                # Retrieve arguments of this method invocation
+                arguments: list[CPGNode] = []
+                call_child_ids = self._parent_children.get(node.id, [])
+                for cid in call_child_ids:
+                    child = self._node_map.get(cid)
+                    if child and child.properties.get("type") == "argument_list":
+                        arg_ids = self._parent_children.get(child.id, [])
+                        for aid in arg_ids:
+                            anode = self._node_map.get(aid)
+                            if anode and anode.properties.get("type") not in {"(", ")", ","}:
+                                arguments.append(anode)
+                        break
+                
+                # Emit REACHES edges from all arguments to receiver node
+                for arg in arguments:
+                    edges.append(
+                        CPGEdge(
+                            source_id=arg.id,
+                            target_id=receiver_node.id,
+                            edge_type=EdgeType.REACHES,
+                            properties=MappingProxyType(
+                                {
+                                    "variable": receiver_str,
+                                    "interprocedural": "collection_write",
+                                }
+                            ),
+                        )
+                    )
+                    
+            elif method_name_str in read_methods:
+                # 2. Collection Read: collection -> method_invocation (which flows to LHS)
+                receiver_node = self._find_receiver_node(node, receiver_str)
+                if not receiver_node:
+                    continue
+                
+                edges.append(
+                    CPGEdge(
+                        source_id=receiver_node.id,
+                        target_id=node.id,
+                        edge_type=EdgeType.REACHES,
+                        properties=MappingProxyType(
+                            {
+                                "variable": receiver_str,
+                                "interprocedural": "collection_read",
+                            }
+                        ),
+                    )
+                )
+
         return edges

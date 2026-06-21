@@ -145,3 +145,53 @@ class TestFieldPropagation:
         ip_edges = ip_b.build(nodes, all_edges)
         field_edges = [e for e in ip_edges if e.properties.get("interprocedural") == "field"]
         assert not field_edges, "field bridge must not cross class boundaries"
+
+
+class TestCollectionTaintInfection:
+    """Tests for coarse-grained collection taint propagation."""
+
+    def test_collection_write_and_read(
+        self,
+        builders: tuple[ASTBuilder, CallGraphBuilder, InterProceduralDFGBuilder],
+    ) -> None:
+        """A collection write propagates argument to collection, and a read propagates collection to invocation."""
+        ast_b, cg_b, ip_b = builders
+        print("IMPORTED FROM:", ip_b.__class__.__module__, ip_b.__class__.__init__.__code__.co_filename)
+        source = (
+            "package com.ex;\n"
+            "import java.util.*;\n"
+            "public class Svc {\n"
+            "    public void run() {\n"
+            "        List<String> list = new ArrayList<>();\n"
+            "        String sourceInput = \"input\";\n"
+            "        list.add(sourceInput);\n"
+            "        String extracted = list.get(0);\n"
+            "    }\n"
+            "}\n"
+        )
+        nodes, ast_edges = ast_b.build("Svc.java", source)
+        for n in nodes:
+            if n.properties.get("type") == "method_invocation":
+                print("\nMethod invocation node:", n.id, n.properties)
+                children_ids = [e.target_id for e in ast_edges if e.source_id == n.id and e.edge_type == EdgeType.PARENT_OF]
+                for cid in children_ids:
+                    cnode = next(x for x in nodes if x.id == cid)
+                    print("  Child:", cnode.id, cnode.properties)
+        all_edges = list(ast_edges) + list(cg_b.build(nodes, ast_edges))
+        ip_edges = ip_b.build(nodes, all_edges)
+
+        write_edges = [
+            e for e in ip_edges if e.properties.get("interprocedural") == "collection_write"
+        ]
+        read_edges = [
+            e for e in ip_edges if e.properties.get("interprocedural") == "collection_read"
+        ]
+
+        assert len(write_edges) >= 1, "expected a collection_write edge"
+        assert len(read_edges) >= 1, "expected a collection_read edge"
+
+        # Check write edge variable and target
+        assert all(e.properties.get("variable") == "list" for e in write_edges)
+        # Check read edge variable and source
+        assert all(e.properties.get("variable") == "list" for e in read_edges)
+

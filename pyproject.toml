@@ -67,3 +67,7 @@ mflow-cpg-mcp = "mflow_cpg.mcp_server:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+

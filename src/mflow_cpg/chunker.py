@@ -8,7 +8,7 @@ from __future__ import annotations
 import os
 import tempfile
 from uuid import NAMESPACE_OID, uuid5
-from typing import Any, AsyncGenerator, Callable
+from typing import AsyncGenerator
 
 from m_flow.ingestion.chunking.Chunker import Chunker
 from m_flow.ingestion.chunking.TextChunker import TextChunker
@@ -53,15 +53,13 @@ class SyntaxAwareCodeChunker(Chunker):
             content_parts.append(block)
         full_content = "".join(content_parts)
 
-        # 3. Create temp file if we don't have a valid local processed_path
-        temp_file = None
-        if not file_path or not os.path.exists(file_path):
-            temp_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False, mode="w", encoding="utf-8")
-            temp_file.write(full_content)
-            temp_file.close()
-            file_path = temp_file.name
+        # 3. Create a temporary directory containing only this file to analyze with ProjectOrchestrator
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_file_name = os.path.basename(file_path or doc_name or f"temp{ext}")
+            temp_file_path = os.path.join(temp_dir, temp_file_name)
+            with open(temp_file_path, "w", encoding="utf-8") as f:
+                f.write(full_content)
 
-        try:
             # 4. Run OmniCPG ProjectOrchestrator in-memory
             from omnicpg.orchestrator.project_orchestrator import ProjectOrchestrator
             from omnicpg.plugins.python_plugin.plugin import PythonPlugin
@@ -74,7 +72,7 @@ class SyntaxAwareCodeChunker(Chunker):
                 analysis_level=AnalysisLevel.ARCHITECTURAL
             )
 
-            nodes, edges = orchestrator.analyze(file_path)
+            nodes, edges = orchestrator.analyze(temp_dir)
             
             # Yield ContentFragments for Classes and Methods
             chunk_index = 0
@@ -91,6 +89,13 @@ class SyntaxAwareCodeChunker(Chunker):
                         code_text = f"// Definition of {fqn or name}\nclass {name}: pass"
                     else:
                         continue
+
+                # Construct context prefix (using base filename)
+                fqn_or_name = node.properties.get("fqn") or node.properties.get("name") or "unknown"
+                node_file_path = os.path.basename(doc_name or node.properties.get("file_path") or "unknown")
+                comment_style = "#" if ext == ".py" else "//"
+                context_prefix = f"{comment_style} Context: defined in {fqn_or_name} in {node_file_path}\n"
+                code_text = context_prefix + code_text
 
                 # Add CPG metadata
                 metadata = {
@@ -128,7 +133,3 @@ class SyntaxAwareCodeChunker(Chunker):
                     contains=[],
                     metadata={"index_fields": ["text"], "file_path": doc_name},
                 )
-
-        finally:
-            if temp_file and os.path.exists(file_path):
-                os.remove(file_path)
