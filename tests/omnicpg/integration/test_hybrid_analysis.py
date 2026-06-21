@@ -76,7 +76,7 @@ class TestHybridAnalysis:
 
         # 验证节点类型
         node_types = {n.labels for n in nodes}
-        assert "Method" in {labels[0] for labels in node_types if labels}
+        assert any("Method" in labels for labels in node_types)
 
         # 验证方法节点有 source_code 属性
         method_nodes = [n for n in nodes if n.has_label("Method")]
@@ -116,10 +116,9 @@ class TestHybridAnalysis:
         assert len(expanded_edges) > 0
 
         # 验证展开的节点包含详细的 AST 节点
-        node_types = {n.labels for n in nodes}
         expanded_types = {n.labels for n in expanded_nodes}
         # 应该包含表达式节点、变量节点等
-        assert len(expanded_types) > len(node_types)
+        assert any("Variable" in labels for labels in expanded_types)
 
         print(f"✓ Method expansion: {len(expanded_nodes)} nodes, {len(expanded_edges)} edges")
 

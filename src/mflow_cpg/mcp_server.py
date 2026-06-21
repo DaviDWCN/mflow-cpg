@@ -8,12 +8,11 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import os
-import sys
-from typing import Any, List
+from typing import Any
 
 from mcp.server import Server
 from mcp.server.models import InitializationOptions
+from mcp.server.sse import SseServerTransport
 from mcp.types import (
     ServerCapabilities,
     TextContent,
@@ -29,11 +28,12 @@ logger = logging.getLogger("UnifiedMCPServer")
 app = Server("mflow-cpg-mcp-server")
 
 # Try to import omnicpg MCP server
+omni_mcp: Any = None
 try:
-    import mcp_server_omnicpg.mcp_server as omni_mcp
+    import mcp_server_omnicpg.mcp_server as _omni_mcp
+    omni_mcp = _omni_mcp
 except ImportError as e:
     logger.warning(f"Failed to import mcp_server_omnicpg: {e}. CPG tools will be unavailable.")
-    omni_mcp = None
 
 
 @app.list_tools()
@@ -126,25 +126,17 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
         text = arguments.get("text", "")
         doc_name = arguments.get("name", "")
         dataset_name = arguments.get("dataset_name", "main_dataset")
-        meta = arguments.get("metadata", {})
 
-        import m_flow
-        from m_flow.data.processing.document_types.Document import Document
+        from m_flow.api.v1.add.add import add as mflow_add
+        from m_flow.api.v1.memorize.memorize import memorize as mflow_memorize
         from mflow_cpg.chunker import SyntaxAwareCodeChunker
 
         try:
-            doc = Document(
-                name=doc_name,
-                processed_path="",
-                mime_type="text/plain",
-                external_metadata=json.dumps(meta) if meta else None,
-                id=doc_name
-            )
             # 1. Add document text to ingestion
-            await m_flow.add(text, dataset_name=dataset_name, dataset_id=None)
+            await mflow_add(text, dataset_name=dataset_name, dataset_id=None)
             
             # 2. Run memorization using SyntaxAwareCodeChunker
-            await m_flow.memorize(
+            await mflow_memorize(
                 datasets=[dataset_name],
                 chunker=SyntaxAwareCodeChunker
             )

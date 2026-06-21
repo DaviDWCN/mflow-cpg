@@ -6,6 +6,7 @@ Run with: pytest tests/integration/ -m integration
 
 from __future__ import annotations
 
+import os
 import pytest
 from mcp_server_omnicpg.tools.graph_analysis import (
     analyze_function,
@@ -15,6 +16,17 @@ from mcp_server_omnicpg.tools.graph_analysis import (
 )
 
 pytestmark = pytest.mark.integration
+
+
+@pytest.fixture(autouse=True)
+def skip_if_no_neo4j() -> None:
+    """Skip integration tests if Neo4j is not configured."""
+    uri = os.getenv("NEO4J_URI")
+    user = os.getenv("NEO4J_USER")
+    password = os.getenv("NEO4J_PASSWORD")
+
+    if not all([uri, user, password]):
+        pytest.skip("Neo4j not configured")
 
 
 class TestGetCallGraph:

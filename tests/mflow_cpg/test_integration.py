@@ -1,6 +1,12 @@
 import os
+import sys
 import json
 import pytest
+
+# Ensure src is at the front of sys.path and remove any conflicting modules from sys.modules cache
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../src")))
+sys.modules.pop('mflow_cpg', None)
+
 from mflow_cpg.config import get_config
 from m_flow.adapters.graph import get_graph_provider
 from mflow_cpg.semantic_engine import SemanticEnrichmentEngine
@@ -8,7 +14,7 @@ from mflow_cpg.linker import ConceptToCodeLinker
 from mflow_cpg.retriever import CPGRetriever
 from omnicpg.orchestrator.pipeline import run_analysis_pipeline
 
-@pytest.mark.asyncio
+@pytest.mark.anyio
 async def test_unified_flow():
     # 1. Load configuration
     cfg = get_config()
