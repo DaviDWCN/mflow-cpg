@@ -172,7 +172,7 @@ class CallGraphBuilder:
                 name = node.properties.get("name")
                 if name is not None:
                     def_index.setdefault(str(name), []).append(node.id)
-            if node.properties.get("type") in {"method_invocation", "method_reference"}:
+            if node.properties.get("type") in {"method_invocation", "method_reference", "object_creation_expression"}:
                 call_nodes.append(node)
 
         # Build child→parent map from PARENT_OF / CONTAINS edges for ancestor lookup.
@@ -476,7 +476,9 @@ class CallGraphBuilder:
             if recv_text.endswith(".class") or recv_text.endswith("getClass()"):
                 return [], "typed"
 
-        if receiver is None or str(receiver) in {"this", "super"}:
+        if call_node.properties.get("type") == "object_creation_expression":
+            target_class = self._resolve_class_of_type(callee_name, ctx, caller_method, caller_class)
+        elif receiver is None or str(receiver) in {"this", "super"}:
             # Unqualified / this call → resolve within the caller's class.
             target_class = caller_class
         else:
@@ -1116,6 +1118,11 @@ class CallGraphBuilder:
         name = call_node.properties.get("name")
         if name is not None:
             name_str = str(name)
+            if call_node.properties.get("type") == "object_creation_expression":
+                if "<" in name_str:
+                    name_str = name_str.split("<", maxsplit=1)[0].strip()
+                if "." in name_str:
+                    name_str = name_str.rsplit(".", maxsplit=1)[-1]
             if name_str.isidentifier():
                 return name_str
 

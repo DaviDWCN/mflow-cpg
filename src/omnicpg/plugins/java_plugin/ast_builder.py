@@ -1219,6 +1219,14 @@ class ASTBuilder:
             obj_node = ts_node.child_by_field_name("object")
             if obj_node is not None and obj_node.text is not None:
                 props["receiver"] = obj_node.text.decode("utf-8")
+
+        # Extract object creation type for ``new Foo(...)`` call sites.
+        if ts_node.type == "object_creation_expression":
+            type_node = ts_node.child_by_field_name("type")
+            if type_node is not None and type_node.text is not None:
+                props["name"] = type_node.text.decode("utf-8")
+
+        if ts_node.type in {"method_invocation", "object_creation_expression"}:
             args_node = ts_node.child_by_field_name("arguments")
             if args_node is not None:
                 arg_children = [c for c in args_node.children if c.is_named]
@@ -1231,12 +1239,6 @@ class ASTBuilder:
                         exprs.append(c.text.decode("utf-8")[:_MAX_ARG_EXPR_LENGTH])
                 if exprs:
                     props["arg_exprs"] = tuple(exprs)
-
-        # Extract object creation type for ``new Foo(...)`` call sites.
-        if ts_node.type == "object_creation_expression":
-            type_node = ts_node.child_by_field_name("type")
-            if type_node is not None and type_node.text is not None:
-                props["name"] = type_node.text.decode("utf-8")
 
         # Tag well-known taint sources / sinks / sanitizers on call sites so
         # downstream analysers can locate candidate flow endpoints quickly.
