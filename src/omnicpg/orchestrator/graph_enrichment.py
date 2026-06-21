@@ -19,6 +19,10 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TYPE_CHECKING, Any, TypeVar
 
+import tree_sitter_python as tspython
+import tree_sitter_java as tsjava
+from tree_sitter import Language, Parser
+
 if TYPE_CHECKING:
     from collections.abc import Callable
 
@@ -245,16 +249,97 @@ def _retry_with_backoff(
 MAX_CONTEXT_TOKENS = 4000
 
 
-def _truncate_code(code: str) -> str:
-    """Truncate code heuristically if it exceeds the token limit."""
+def _truncate_code(code: str, file_path: str | None = None) -> str:
+    """Truncate code using AST-aware compression (comments, docstrings, long strings).
+    Falls back to basic truncation if parsing fails or code is still too long.
+    """
     if not code:
         return code
-    estimated_tokens = len(code) / 3.5
+
+    # 1. Determine language
+    lang_str = None
+    if file_path:
+        file_path_lower = file_path.lower()
+        if file_path_lower.endswith(".py"):
+            lang_str = "python"
+        elif file_path_lower.endswith(".java") or file_path_lower.endswith(".jsp"):
+            lang_str = "java"
+
+    # Heuristic guess if no file_path
+    if not lang_str:
+        if "def " in code or "import " in code:
+            lang_str = "python"
+        elif "public " in code or "class " in code or "void " in code:
+            lang_str = "java"
+        else:
+            lang_str = "python"  # fallback
+
+    try:
+        if lang_str == "python":
+            lang = Language(tspython.language())
+        else:
+            lang = Language(tsjava.language())
+
+        parser = Parser(lang)
+        source_bytes = code.encode("utf-8")
+        tree = parser.parse(source_bytes)
+
+        # Traverse AST to collect nodes to replace
+        replacements = []  # list of (start_byte, end_byte, replacement_bytes)
+
+        def traverse(node):
+            if lang_str == "python":
+                if node.type == "comment":
+                    replacements.append((node.start_byte, node.end_byte, b"# ..."))
+                elif node.type == "string":
+                    # Check if it's a docstring or a long string
+                    node_text = source_bytes[node.start_byte:node.end_byte]
+                    if node_text.startswith(b'"""') or node_text.startswith(b"'''") or len(node_text) > 100:
+                        replacements.append((node.start_byte, node.end_byte, b'"[... string ...]"'))
+                else:
+                    for child in node.children:
+                        traverse(child)
+            elif lang_str == "java":
+                if node.type in ("block_comment", "line_comment"):
+                    replacements.append((node.start_byte, node.end_byte, b"/* ... */"))
+                elif node.type == "string_literal":
+                    node_text = source_bytes[node.start_byte:node.end_byte]
+                    if len(node_text) > 100:
+                        replacements.append((node.start_byte, node.end_byte, b'"[... string ...]"'))
+                else:
+                    for child in node.children:
+                        traverse(child)
+
+        traverse(tree.root_node)
+
+        # Sort replacements by start_byte descending to replace from back to front
+        replacements.sort(key=lambda x: x[0], reverse=True)
+
+        # Apply replacements
+        last_start = len(source_bytes)
+        result_parts = []
+        for start, end, repl in replacements:
+            if end <= last_start:
+                # Part after this replacement up to last_start
+                result_parts.append(source_bytes[end:last_start])
+                result_parts.append(repl)
+                last_start = start
+        if last_start > 0:
+            result_parts.append(source_bytes[:last_start])
+
+        result_parts.reverse()
+        compressed_code = b"".join(result_parts).decode("utf-8", errors="ignore")
+    except Exception as e:
+        logger.debug("AST compression failed, falling back to heuristic: %s", e)
+        compressed_code = code
+
+    # Fallback if still too long or compression didn't run
+    estimated_tokens = len(compressed_code) / 3.5
     if estimated_tokens > MAX_CONTEXT_TOKENS:
-        # Keep 20% prefix and 20% suffix
         keep_chars = int(MAX_CONTEXT_TOKENS * 3.5 * 0.2)
-        return code[:keep_chars] + "\n\n[... truncated for length ...]\n\n" + code[-keep_chars:]
-    return code
+        return compressed_code[:keep_chars] + "\n\n[... truncated for length ...]\n\n" + compressed_code[-keep_chars:]
+
+    return compressed_code
 
 
 def _fetch_embedding(
@@ -304,12 +389,13 @@ def _fetch_semantic_summary(
     model: str,
     node_type: str = "Method",
     context_str: str = "",
+    file_path: str | None = None,
 ) -> str | None:
     """Fetch a semantic summary for the given code from a local LLM via API."""
     if not code or not code.strip():
         return None
 
-    truncated_code = _truncate_code(code)
+    truncated_code = _truncate_code(code, file_path)
 
     if node_type == "Class":
         system_prompt = (
@@ -383,9 +469,10 @@ def _process_semantic_and_embedding(
     embedding_model: str,
     node_type: str = "Method",
     context_str: str = "",
+    file_path: str | None = None,
 ) -> dict[str, Any] | None:
     summary_json_str = _fetch_semantic_summary(
-        code, api_base, api_key, model, node_type, context_str
+        code, api_base, api_key, model, node_type, context_str, file_path
     )
     if not summary_json_str:
         return None
@@ -456,6 +543,10 @@ def _build_context_str(row: dict[str, Any], node_type: str) -> str:
         if calls:
             # limit to 10 calls for context size
             context_parts.append(f"Calls: {', '.join(calls[:10])}")
+        called_by = [cb for cb in (row.get("called_by") or []) if cb]
+        if called_by:
+            # limit to 10 callers for context size
+            context_parts.append(f"Called by: {', '.join(called_by[:10])}")
 
     return " | ".join(context_parts)
 
@@ -502,9 +593,11 @@ def enrich_semantic_intent(
           AND n.code IS NOT NULL
         RETURN n.id AS id,
                n.code AS code,
+               n.file_path AS file_path,
                labels(n) AS labels,
                n.name AS name,
                [(n)-[:CALLS]->(called) | called.name] AS called_methods,
+               [(caller:Method)-[:CALLS]->(n) | caller.name] AS called_by,
                [(n)-[:PARENT_OF]->(p:Node) WHERE p.type='formal_parameter' | p.name] AS parameters,
                n.superclass AS parent_class,
                [(n)-[:PARENT_OF]->(m:Method) | m.name] AS class_methods
@@ -534,6 +627,7 @@ def enrich_semantic_intent(
                 embedding_model,
                 node_type,
                 context_str,
+                row.get("file_path"),
             )
             future_to_id[future] = str(row["id"])
         for future in as_completed(future_to_id):
@@ -823,7 +917,10 @@ def enrich_llm_architectural_roles(
           AND (c:Class OR c:Interface)
           AND c.role IS NULL
           AND c.code IS NOT NULL
-        RETURN c.id AS id, c.code AS code, c.name AS name,
+        RETURN c.id AS id,
+               c.code AS code,
+               c.name AS name,
+               c.file_path AS file_path,
                c.annotations AS annotations,
                c.superclass AS superclass,
                c.base_classes AS base_classes,
@@ -838,7 +935,7 @@ def enrich_llm_architectural_roles(
     updates: list[dict[str, Any]] = []
 
     def process_node(row: dict[str, Any]) -> dict[str, Any] | None:
-        truncated_code = _truncate_code(str(row["code"]))
+        truncated_code = _truncate_code(str(row["code"]), row.get("file_path"))
 
         context_parts = []
         name = row.get("name")
