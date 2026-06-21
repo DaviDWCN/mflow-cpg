@@ -1,0 +1,6 @@
+[console_scripts]
+mflow-cpg-mcp = mflow_cpg.mcp_server:main
+
+[omnicpg.plugins]
+java = omnicpg.plugins.java_plugin.plugin:JavaPlugin
+python = omnicpg.plugins.python_plugin.plugin:PythonPlugin

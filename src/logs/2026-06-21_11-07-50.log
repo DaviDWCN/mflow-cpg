@@ -1,0 +1,124 @@
+2026-06-21T11:07:51.127205 [WARNING ] Multi-user access control is enabled. Each user's data is isolated — content ingested before this mode was activated may not be visible. Set ENABLE_BACKEND_ACCESS_CONTROL=false to revert to single-user mode. [m_flow.shared.logging_utils]
+2026-06-21T11:07:51.127769 [INFO    ] Log file created at: D:\workspace\mflow-cpg\src\logs\2026-06-21_11-07-50.log log_file=D:\workspace\mflow-cpg\src\logs\2026-06-21_11-07-50.log [m_flow.shared.logging_utils]
+2026-06-21T11:07:51.128824 [INFO    ] Logging initialized python_version=3.11.15 structlog_version=25.5.0 m_flow_version=0.0.0-unknown os_info=Windows 10 (10.0.19045) database_path=D:\workspace\mflow-cpg\src\m_flow\.mflow\system\databases graph_database_name=neo4j vector_config=lancedb relational_config=mflow_store [m_flow.shared.logging_utils]
+2026-06-21T11:07:51.128824 [INFO    ] Database storage: D:\workspace\mflow-cpg\src\m_flow\.mflow\system\databases [m_flow.shared.logging_utils]
+2026-06-21T11:07:51.225524 [WARNING ] Using default reset password token for development. Set FASTAPI_USERS_RESET_PASSWORD_TOKEN_SECRET for production. [auth.security]
+2026-06-21T11:07:51.225862 [WARNING ] Using default verification token for development. Set FASTAPI_USERS_VERIFICATION_TOKEN_SECRET for production. [auth.security]
+2026-06-21T11:07:51.232374 [WARNING ] Using default JWT authentication for development. Set FASTAPI_USERS_JWT_SECRET for production. [auth.security]
+2026-06-21T11:07:51.623842 [WARNING ] protego not installed: pip install protego>=0.1 [m_flow.shared.logging_utils]
+2026-06-21T11:07:51.624455 [WARNING ] playwright not installed: pip install playwright>=1.9.0 [m_flow.shared.logging_utils]
+Using proactor: IocpProactor
+[#0000]  _: <POOL> created, direct address IPv4Address(('localhost', 7687))
+[#0000]  _: <WORKSPACE> routing towards fixed database: neo4j
+[#0000]  _: <WORKSPACE> pinning database: 'neo4j'
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name='neo4j', guessed=False)
+[#0000]  _: <POOL> trying to hand out new connection
+[#0000]  _: <RESOLVE> in: localhost:7687
+[#0000]  _: <RESOLVE> dns resolver out: [::1]:7687
+[#0000]  C: <OPEN> [::1]:7687
+[#0000]  S: <ERROR> ConnectionRefusedError 22 '远程计算机拒绝网络连接。' None 1225 None
+[#0000]  C: <CLOSE> [::1]:7687
+[#0000]  S: <CONNECTION FAILED> [::1]:7687 ServiceUnavailable: Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+[#0000]  _: <RESOLVE> dns resolver out: 127.0.0.1:7687
+[#0000]  C: <OPEN> 127.0.0.1:7687
+[#0000]  S: <ERROR> ConnectionRefusedError 22 '远程计算机拒绝网络连接。' None 1225 None
+[#0000]  C: <CLOSE> 127.0.0.1:7687
+[#0000]  S: <CONNECTION FAILED> 127.0.0.1:7687 ServiceUnavailable: Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+2026-06-21T11:07:56.572445 [ERROR   ] Exception exception_type=Skipped exception_message=Neo4j is not reachable. Skipping live integration test: Couldn't connect to localhost:7687 (resolved to ('[::1]:7687', '127.0.0.1:7687')):
+Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [WinError 1225] 远程计算机拒绝网络连接。) traceback=True [m_flow.shared.logging_utils]
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async_compat\network\_bolt_socket.py", line 275, in _connect_secure
+    await wait_for(loop.sock_connect(s, resolved_address), timeout)
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async_compat\shims\_wait_for.py", line 118, in wait_for
+    return fut.result()
+           ^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\Lib\asyncio\proactor_events.py", line 726, in sock_connect
+    return await self._proactor.connect(sock, address)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\Lib\asyncio\windows_events.py", line 854, in _poll
+    value = callback(transferred, key, ov)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\Lib\asyncio\windows_events.py", line 641, in finish_connect
+    ov.getresult()
+ConnectionRefusedError: [WinError 1225] 远程计算机拒绝网络连接。
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\io\_bolt_socket.py", line 329, in connect
+    s = await cls._connect_secure(
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async_compat\network\_bolt_socket.py", line 357, in _connect_secure
+    raise ServiceUnavailable(
+neo4j.exceptions.ServiceUnavailable: Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\workspace\mflow-cpg\tests\mflow_cpg\test_integration.py", line 19, in test_unified_flow
+    db = await get_graph_provider()
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\mflow-cpg\src\m_flow\adapters\graph\get_graph_adapter.py", line 33, in get_graph_provider
+    await adapter.initialize()
+  File "D:\workspace\mflow-cpg\src\m_flow\adapters\graph\neo4j_driver\adapter.py", line 146, in initialize
+    await self.query(constraint_cypher)
+  File "D:\workspace\mflow-cpg\src\m_flow\adapters\graph\neo4j_driver\deadlock_retry.py", line 48, in _inner
+    return await fn(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\mflow-cpg\src\m_flow\adapters\graph\neo4j_driver\adapter.py", line 174, in query
+    cursor = await sess.run(query, parameters=params)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\work\session.py", line 318, in run
+    await self._connect(self._config.default_access_mode)
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\work\session.py", line 128, in _connect
+    await super()._connect(
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\work\workspace.py", line 184, in _connect
+    self._connection = await self._pool.acquire(**acquire_kwargs_)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\io\_pool.py", line 681, in acquire
+    return await self._acquire(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\io\_pool.py", line 421, in _acquire
+    return await connection_creator()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\io\_pool.py", line 234, in connection_creator
+    connection = await self.opener(
+                 ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\io\_pool.py", line 641, in opener
+    return await AsyncBolt.open(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\io\_bolt.py", line 366, in open
+    s, protocol_version = await AsyncBoltSocket.connect(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\neo4j\_async\io\_bolt_socket.py", line 380, in connect
+    raise ServiceUnavailable(
+neo4j.exceptions.ServiceUnavailable: Couldn't connect to localhost:7687 (resolved to ('[::1]:7687', '127.0.0.1:7687')):
+Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\workspace\mflow-cpg\run_integration_test.py", line 27, in <module>
+    asyncio.run(main())
+  File "C:\Users\david\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david\AppData\Roaming\uv\python\cpython-3.11-windows-x86_64-none\Lib\asyncio\base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "D:\workspace\mflow-cpg\run_integration_test.py", line 14, in main
+    await test_unified_flow()
+  File "D:\workspace\mflow-cpg\tests\mflow_cpg\test_integration.py", line 24, in test_unified_flow
+    pytest.skip(f"Neo4j is not reachable. Skipping live integration test: {e}")
+  File "C:\Users\david\AppData\Local\hermes\hermes-agent\venv\Lib\site-packages\_pytest\outcomes.py", line 138, in __call__
+    raise Skipped(msg=reason, allow_module_level=allow_module_level)
+Skipped: Neo4j is not reachable. Skipping live integration test: Couldn't connect to localhost:7687 (resolved to ('[::1]:7687', '127.0.0.1:7687')):
+Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+Failed to establish connection to ResolvedIPv4Address(('127.0.0.1', 7687)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+
+Using proactor: IocpProactor

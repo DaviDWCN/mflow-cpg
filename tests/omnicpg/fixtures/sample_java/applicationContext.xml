@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans">
+    <bean id="userService" class="com.example.service.UserService">
+        <property name="greeting" value="Hello"/>
+    </bean>
+    <bean id="userRepository" class="com.example.repository.UserRepository"/>
+</beans>

@@ -1,0 +1,1 @@
+"""OpenAPI plugin module."""

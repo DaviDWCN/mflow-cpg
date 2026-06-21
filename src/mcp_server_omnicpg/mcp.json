@@ -1,0 +1,122 @@
+{
+  "mcpServers": {
+    "omnicpg": {
+      "type": "sse",
+      "url": "http://localhost:8080/sse",
+      "tools": [
+        {
+          "name": "get_server_info",
+          "description": "Get server status, Neo4j connection state, and usage hints. Call this first."
+        },
+        {
+          "name": "query_nodes",
+          "description": "Query CPG nodes by type, name, file path, project_id, or language. Use this to discover node IDs."
+        },
+        {
+          "name": "query_edges",
+          "description": "Query CPG edges by type, source, target, or project_id."
+        },
+        {
+          "name": "get_node_by_id",
+          "description": "Get detailed information about a specific node by ID (use query_nodes first to find IDs)"
+        },
+        {
+          "name": "find_path",
+          "description": "Find paths between two nodes in the CPG"
+        },
+        {
+          "name": "find_data_flow",
+          "description": "Find data flow paths between nodes"
+        },
+        {
+          "name": "find_control_flow",
+          "description": "Find control flow paths between nodes"
+        },
+        {
+          "name": "get_call_graph",
+          "description": "Get function call graph"
+        },
+        {
+          "name": "get_dependencies",
+          "description": "Get DEPENDS_ON (import) relationships for a File node"
+        },
+        {
+          "name": "analyze_function",
+          "description": "Analyze a function node in detail: callers, callees, CFG/DFG edges"
+        },
+        {
+          "name": "get_file_structure",
+          "description": "Get structure of a source code file"
+        },
+        {
+          "name": "detect_security_issues",
+          "description": "Detect potential security vulnerabilities (SQL injection, hardcoded secrets, unsafe eval, etc.)"
+        },
+        {
+          "name": "analyze_code_complexity",
+          "description": "Analyze cyclomatic and cognitive complexity of functions"
+        },
+        {
+          "name": "find_dead_code",
+          "description": "Identify potentially dead/unused code (unused functions, imports, private methods)"
+        },
+        {
+          "name": "analyze_change_impact",
+          "description": "Analyze the impact of changing a specific function (callers, transitive dependencies)"
+        },
+        {
+          "name": "find_similar_code",
+          "description": "Find similar code patterns to a given function based on AST structure"
+        },
+        {
+          "name": "get_architecture_metrics",
+          "description": "Get high-level architecture metrics (module coupling, cyclic dependencies, stability)"
+        },
+        {
+          "name": "get_code_context",
+          "description": "Get rich context around a specific code node for LLM consumption"
+        },
+        {
+          "name": "semantic_search",
+          "description": "Perform semantic search over code using pattern matching"
+        },
+        {
+          "name": "suggest_refactoring",
+          "description": "Suggest refactoring opportunities for a function (extract method, rename, simplify)"
+        },
+        {
+          "name": "explain_code",
+          "description": "Generate a structured explanation of code for LLM consumption"
+        },
+        {
+          "name": "trace_variable",
+          "description": "Trace the lifecycle of a variable through the code (definitions, usages, modifications)"
+        },
+        {
+          "name": "get_test_coverage_info",
+          "description": "Get information about test coverage for a function"
+        },
+        {
+          "name": "analyze_path",
+          "description": "Trigger incremental CPG analysis on a specific file or subdirectory and store results into Neo4j"
+        },
+        {
+          "name": "expand_method_on_demand",
+          "description": "Expand a single method from ARCHITECTURAL skeleton to FULL CPG (AST + CFG + DFG)"
+        },
+        {
+          "name": "get_expansion_stats",
+          "description": "Get statistics about method expansion cache"
+        },
+        {
+          "name": "find_data_flow_with_auto_expand",
+          "description": "Find data flow paths between nodes, automatically expanding methods along the path if needed"
+        },
+        {
+          "name": "find_control_flow_with_auto_expand",
+          "description": "Find control flow paths between nodes, automatically expanding methods along the path if needed"
+        }
+      ]
+    }
+  }
+}

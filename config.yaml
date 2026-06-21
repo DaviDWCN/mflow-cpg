@@ -1,0 +1,55 @@
+# M-Flow × OmniCPG Unified Configuration
+
+neo4j:
+  uri: "bolt://localhost:7687"
+  username: "neo4j"
+  password: "test12345"
+  database: "neo4j"
+
+llm:
+  provider: "ollama"               # Using local Ollama
+  model: "llama3"                  # Default Ollama model name (e.g. llama3, qwen2.5, etc.)
+  endpoint: "http://localhost:11434/v1" # Ollama OpenAI-compatible endpoint
+  api_key: "ollama"                # Dummy key
+
+embedding:
+  provider: "ollama"
+  model: "nomic-embed-text"        # Default Ollama embedding model name
+  endpoint: "http://localhost:11434/v1"
+  api_key: "ollama"
+
+cpg:
+  analysis_level: "FULL"           # FULL, STRUCTURAL, ARCHITECTURAL
+  languages: ["python", "java"]
+  batch_size: 500
+
+semantic_analysis:
+  enabled: true
+  api_base: "http://localhost:11434/v1"
+  api_key: "ollama"
+  model: "llama3"
+  embedding_model: "nomic-embed-text"
+  
+  # Multi-level semantic analysis config (with extension mechanism)
+  levels:
+    - name: "high_level"
+      enabled: true
+      target_labels: ["Class", "Module", "Interface"]
+      json_output: true
+      prompt: |
+        You are an expert software engineer analyzing a Class or Module.
+        Output your analysis strictly as a JSON object with the following keys:
+        'intent' (a summary of the architectural role and core domain responsibilities),
+        'side_effects' (any external system interactions, state mutations, or resource usage),
+        'data_sources' (data structures, models, or entities operated on),
+        'taint_tags' (a list of string tags like 'Handles PII', 'Network IO', 'Cryptographic', or an empty list).
+        Do not output markdown formatting, just the raw JSON object.
+
+    - name: "details_level"
+      enabled: true
+      target_labels: ["Method"]
+      json_output: false
+      prompt: |
+        You are an expert software engineer. Summarize the core business logic,
+        input processing, and outcome of this function in one sentence.
+        Do not include boilerplate or conversational text. Output only the summary.

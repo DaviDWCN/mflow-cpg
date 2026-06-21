@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-mapping>
+    <class name="com.example.model.User" table="users">
+        <id name="id" column="id"/>
+        <property name="username" column="username"/>
+        <property name="email" column="email"/>
+    </class>
+</hibernate-mapping>

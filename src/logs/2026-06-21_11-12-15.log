@@ -1,0 +1,839 @@
+2026-06-21T11:12:16.110315 [WARNING ] Multi-user access control is enabled. Each user's data is isolated — content ingested before this mode was activated may not be visible. Set ENABLE_BACKEND_ACCESS_CONTROL=false to revert to single-user mode. [m_flow.shared.logging_utils]
+2026-06-21T11:12:16.111199 [INFO    ] Log file created at: D:\workspace\mflow-cpg\src\logs\2026-06-21_11-12-15.log log_file=D:\workspace\mflow-cpg\src\logs\2026-06-21_11-12-15.log [m_flow.shared.logging_utils]
+2026-06-21T11:12:16.112238 [INFO    ] Logging initialized python_version=3.11.15 structlog_version=25.5.0 m_flow_version=0.0.0-unknown os_info=Windows 10 (10.0.19045) database_path=D:\workspace\mflow-cpg\src\m_flow\.mflow\system\databases graph_database_name=neo4j vector_config=lancedb relational_config=mflow_store [m_flow.shared.logging_utils]
+2026-06-21T11:12:16.112757 [INFO    ] Database storage: D:\workspace\mflow-cpg\src\m_flow\.mflow\system\databases [m_flow.shared.logging_utils]
+2026-06-21T11:12:16.282967 [WARNING ] Using default reset password token for development. Set FASTAPI_USERS_RESET_PASSWORD_TOKEN_SECRET for production. [auth.security]
+2026-06-21T11:12:16.283392 [WARNING ] Using default verification token for development. Set FASTAPI_USERS_VERIFICATION_TOKEN_SECRET for production. [auth.security]
+2026-06-21T11:12:16.295362 [WARNING ] Using default JWT authentication for development. Set FASTAPI_USERS_JWT_SECRET for production. [auth.security]
+2026-06-21T11:12:16.815929 [WARNING ] protego not installed: pip install protego>=0.1 [m_flow.shared.logging_utils]
+2026-06-21T11:12:16.817221 [WARNING ] playwright not installed: pip install playwright>=1.9.0 [m_flow.shared.logging_utils]
+Using proactor: IocpProactor
+[#0000]  _: <POOL> created, direct address IPv4Address(('localhost', 7687))
+[#0000]  _: <WORKSPACE> routing towards fixed database: neo4j
+[#0000]  _: <WORKSPACE> pinning database: 'neo4j'
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name='neo4j', guessed=False)
+[#0000]  _: <POOL> trying to hand out new connection
+[#0000]  _: <RESOLVE> in: localhost:7687
+[#0000]  _: <RESOLVE> dns resolver out: [::1]:7687
+[#0000]  C: <OPEN> [::1]:7687
+[#0000]  S: <ERROR> ConnectionRefusedError 22 '远程计算机拒绝网络连接。' None 1225 None
+[#0000]  C: <CLOSE> [::1]:7687
+[#0000]  S: <CONNECTION FAILED> [::1]:7687 ServiceUnavailable: Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 1225] 远程计算机拒绝网络连接。)
+[#0000]  _: <RESOLVE> dns resolver out: 127.0.0.1:7687
+[#0000]  C: <OPEN> 127.0.0.1:7687
+[#D506]  C: <MAGIC> 0x6060B017
+[#D506]  C: <HANDSHAKE> 0x000001FF 0x00080805 0x00020404 0x00000003
+[#D506]  S: <HANDSHAKE> 0x000001FF [4] 0x00040404 0x00040405 0x00020805 0x00000006 0x00
+[#D506]  C: <HANDSHAKE> 0x00000006 0x00
+[#D506]  C: HELLO {'user_agent': 'neo4j-python/6.2.0 Python/3.11.15-final-0 (win32)', 'notifications_minimum_severity': 'OFF', 'bolt_agent': {'product': 'neo4j-python/6.2.0', 'platform': 'Windows 10; AMD64', 'language': 'Python/3.11.15-final-0', 'language_details': 'CPython; 3.11.15-final-0 (main, Jun 11 2026 04:59:07) [MSC v.1944 64 bit (AMD64)]'}}
+[#D506]  _: <CONNECTION> client state: CONNECTED > AUTHENTICATION
+[#D506]  C: LOGON {'scheme': 'basic', 'principal': 'neo4j', 'credentials': '*******'}
+[#D506]  _: <CONNECTION> client state: AUTHENTICATION > READY
+[#D506]  S: SUCCESS {'server': 'Neo4j/2026.02.2', 'protocol_version': '6.0', 'connection_id': 'bolt-1', 'hints': {'connection.recv_timeout_seconds': 120, 'ssr.enabled': True}}
+[#D506]  _: <CONNECTION> server state: CONNECTED > AUTHENTICATION
+[#D506]  S: SUCCESS {'advertised_address': 'localhost:7687'}
+[#D506]  _: <CONNECTION> server state: AUTHENTICATION > READY
+[#D506]  C: RUN 'CREATE CONSTRAINT IF NOT EXISTS FOR (n:`__Node__`) REQUIRE n.id IS UNIQUE;' {} {'db': 'neo4j'}
+[#D506]  _: <CONNECTION> client state: READY > STREAMING
+[#D506]  C: PULL {'n': 1000}
+[#D506]  S: SUCCESS {'t_first': 682, 'fields': []}
+[#D506]  _: <CONNECTION> server state: READY > STREAMING
+[#D506]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYQkA==', 'stats': {'contains-updates': True, 'constraints-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D506]  _: <CONNECTION> server state: STREAMING > READY
+[#D506]  _: <POOL> released bolt-1
+[#0000]  _: <WORKSPACE> routing towards fixed database: neo4j
+[#0000]  _: <WORKSPACE> pinning database: 'neo4j'
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name='neo4j', guessed=False)
+[#D506]  _: <POOL> picked existing connection bolt-1
+[#D506]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D506]  _: <POOL> handing out existing connection
+[#D506]  C: RUN 'MATCH (n) DETACH DELETE n' {} {'db': 'neo4j'}
+[#D506]  C: PULL {'n': 1000}
+[#D506]  S: SUCCESS {'t_first': 1386, 'fields': []}
+[#D506]  _: <CONNECTION> server state: READY > STREAMING
+[#D506]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'stats': {'contains-updates': True, 'nodes-deleted': 90851, 'relationships-deleted': 108145}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 'w', 't_last': 0, 'db': 'neo4j'}
+[#D506]  _: <CONNECTION> server state: STREAMING > READY
+[#D506]  _: <POOL> released bolt-1
+[#0000]  _: <POOL> created, direct address IPv4Address(('localhost', 7687))
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <WORKSPACE> pinning database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='READ', database=AcquisitionDatabase(name=None, guessed=False)
+[#0000]  _: <POOL> trying to hand out new connection
+[#0000]  _: <RESOLVE> in: localhost:7687
+[#0000]  _: <RESOLVE> dns resolver out: [::1]:7687
+[#0000]  C: <OPEN> [::1]:7687
+[#0000]  S: <ERROR> ServiceUnavailable "Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 10061] 由于目标计算机积极拒绝，无法连接。)"
+[#0000]  C: <CLOSE> [::1]:7687
+[#0000]  S: <CONNECTION FAILED> [::1]:7687 ServiceUnavailable: Failed to establish connection to ResolvedIPv6Address(('::1', 7687, 0, 0)) (reason [WinError 10061] 由于目标计算机积极拒绝，无法连接。)
+[#0000]  _: <RESOLVE> dns resolver out: 127.0.0.1:7687
+[#0000]  C: <OPEN> 127.0.0.1:7687
+[#D508]  C: <MAGIC> 0x6060B017
+[#D508]  C: <HANDSHAKE> 0x000001FF 0x00080805 0x00020404 0x00000003
+[#D508]  S: <HANDSHAKE> 0x000001FF [4] 0x00040404 0x00040405 0x00020805 0x00000006 0x00
+[#D508]  C: <HANDSHAKE> 0x00000006 0x00
+[#D508]  C: HELLO {'user_agent': 'neo4j-python/6.2.0 Python/3.11.15-final-0 (win32)', 'bolt_agent': {'product': 'neo4j-python/6.2.0', 'platform': 'Windows 10; AMD64', 'language': 'Python/3.11.15-final-0', 'language_details': 'CPython; 3.11.15-final-0 (main, Jun 11 2026 04:59:07) [MSC v.1944 64 bit (AMD64)]'}}
+[#D508]  _: <CONNECTION> client state: CONNECTED > AUTHENTICATION
+[#D508]  C: LOGON {'scheme': 'basic', 'principal': 'neo4j', 'credentials': '*******'}
+[#D508]  _: <CONNECTION> client state: AUTHENTICATION > READY
+[#D508]  S: SUCCESS {'server': 'Neo4j/2026.02.2', 'protocol_version': '6.0', 'connection_id': 'bolt-2', 'hints': {'connection.recv_timeout_seconds': 120, 'ssr.enabled': True}}
+[#D508]  _: <CONNECTION> server state: CONNECTED > AUTHENTICATION
+[#D508]  S: SUCCESS {'advertised_address': 'localhost:7687'}
+[#D508]  _: <CONNECTION> server state: AUTHENTICATION > READY
+[#D508]  _: <POOL> released bolt-2
+Connected to Neo4j at bolt://localhost:7687
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <WORKSPACE> pinning database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE CONSTRAINT node_id_unique IF NOT EXISTS FOR (n:Node) REQUIRE n.id IS UNIQUE' {} {}
+[#D508]  _: <CONNECTION> client state: READY > STREAMING
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 33, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`CONSTRAINT node_id_unique FOR (e:Node) REQUIRE (e.id) IS UNIQUE` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE CONSTRAINT node_id_unique IF NOT EXISTS FOR (e:Node) REQUIRE (e.id) IS UNIQUE' has no effect. The index or constraint specified by 'CONSTRAINT node_id_unique FOR (e:Node) REQUIRE (e.id) IS UNIQUE' already exists.", 'title': '`CREATE CONSTRAINT node_id_unique IF NOT EXISTS FOR (e:Node) REQUIRE (e.id) IS UNIQUE` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE CONSTRAINT node_id_unique IF NOT EXISTS FOR (e:Node) REQUIRE (e.id) IS UNIQUE' has no effect. The index or constraint specified by 'CONSTRAINT node_id_unique FOR (e:Node) REQUIRE (e.id) IS UNIQUE' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE CONSTRAINT node_id_unique IF NOT EXISTS FOR (n:Node) REQUIRE n.id IS UNIQUE'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_name_index IF NOT EXISTS FOR (n:Node) ON (n.name)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 21, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX node_name_index FOR (e:Node) ON (e.name)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_name_index IF NOT EXISTS FOR (e:Node) ON (e.name)' has no effect. The index or constraint specified by 'RANGE INDEX node_name_index FOR (e:Node) ON (e.name)' already exists.", 'title': '`CREATE RANGE INDEX node_name_index IF NOT EXISTS FOR (e:Node) ON (e.name)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_name_index IF NOT EXISTS FOR (e:Node) ON (e.name)' has no effect. The index or constraint specified by 'RANGE INDEX node_name_index FOR (e:Node) ON (e.name)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX node_name_index IF NOT EXISTS FOR (n:Node) ON (n.name)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_file_path_index IF NOT EXISTS FOR (n:Node) ON (n.file_path)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 12, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX node_file_path_index FOR (e:Node) ON (e.file_path)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_file_path_index IF NOT EXISTS FOR (e:Node) ON (e.file_path)' has no effect. The index or constraint specified by 'RANGE INDEX node_file_path_index FOR (e:Node) ON (e.file_path)' already exists.", 'title': '`CREATE RANGE INDEX node_file_path_index IF NOT EXISTS FOR (e:Node) ON (e.file_path)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_file_path_index IF NOT EXISTS FOR (e:Node) ON (e.file_path)' has no effect. The index or constraint specified by 'RANGE INDEX node_file_path_index FOR (e:Node) ON (e.file_path)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX node_file_path_index IF NOT EXISTS FOR (n:Node) ON (n.file_path)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_id_index IF NOT EXISTS FOR (n:Node) ON (n.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 19, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX node_project_id_index FOR (e:Node) ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_id_index IF NOT EXISTS FOR (e:Node) ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_id_index FOR (e:Node) ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX node_project_id_index IF NOT EXISTS FOR (e:Node) ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_id_index IF NOT EXISTS FOR (e:Node) ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_id_index FOR (e:Node) ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX node_project_id_index IF NOT EXISTS FOR (n:Node) ON (n.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_type_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.type)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 16, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX node_project_type_index FOR (e:Node) ON (e.project_id, e.type)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_type_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.type)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_type_index FOR (e:Node) ON (e.project_id, e.type)' already exists.", 'title': '`CREATE RANGE INDEX node_project_type_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.type)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_type_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.type)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_type_index FOR (e:Node) ON (e.project_id, e.type)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX node_project_type_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.type)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_name_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.name)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 9, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX node_project_name_index FOR (e:Node) ON (e.project_id, e.name)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_name_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.name)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_name_index FOR (e:Node) ON (e.project_id, e.name)' already exists.", 'title': '`CREATE RANGE INDEX node_project_name_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.name)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_name_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.name)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_name_index FOR (e:Node) ON (e.project_id, e.name)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX node_project_name_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.name)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_file_path_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.file_path)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 11, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX node_project_file_path_index FOR (e:Node) ON (e.project_id, e.file_path)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_file_path_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.file_path)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_file_path_index FOR (e:Node) ON (e.project_id, e.file_path)' already exists.", 'title': '`CREATE RANGE INDEX node_project_file_path_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.file_path)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_file_path_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.file_path)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_file_path_index FOR (e:Node) ON (e.project_id, e.file_path)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX node_project_file_path_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.file_path)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_fqn_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.fqn)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 9, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX node_project_fqn_index FOR (e:Node) ON (e.project_id, e.fqn)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_fqn_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.fqn)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_fqn_index FOR (e:Node) ON (e.project_id, e.fqn)' already exists.", 'title': '`CREATE RANGE INDEX node_project_fqn_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.fqn)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX node_project_fqn_index IF NOT EXISTS FOR (e:Node) ON (e.project_id, e.fqn)' has no effect. The index or constraint specified by 'RANGE INDEX node_project_fqn_index FOR (e:Node) ON (e.project_id, e.fqn)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX node_project_fqn_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.fqn)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX parent_of_project_id_index IF NOT EXISTS FOR ()-[r:PARENT_OF]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 10, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX parent_of_project_id_index FOR ()-[e:PARENT_OF]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX parent_of_project_id_index IF NOT EXISTS FOR ()-[e:PARENT_OF]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX parent_of_project_id_index FOR ()-[e:PARENT_OF]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX parent_of_project_id_index IF NOT EXISTS FOR ()-[e:PARENT_OF]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX parent_of_project_id_index IF NOT EXISTS FOR ()-[e:PARENT_OF]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX parent_of_project_id_index FOR ()-[e:PARENT_OF]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX parent_of_project_id_index IF NOT EXISTS FOR ()-[r:PARENT_OF]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX contains_project_id_index IF NOT EXISTS FOR ()-[r:CONTAINS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 9, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX contains_project_id_index FOR ()-[e:CONTAINS]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX contains_project_id_index IF NOT EXISTS FOR ()-[e:CONTAINS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX contains_project_id_index FOR ()-[e:CONTAINS]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX contains_project_id_index IF NOT EXISTS FOR ()-[e:CONTAINS]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX contains_project_id_index IF NOT EXISTS FOR ()-[e:CONTAINS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX contains_project_id_index FOR ()-[e:CONTAINS]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX contains_project_id_index IF NOT EXISTS FOR ()-[r:CONTAINS]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX flows_to_project_id_index IF NOT EXISTS FOR ()-[r:FLOWS_TO]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 10, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX flows_to_project_id_index FOR ()-[e:FLOWS_TO]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX flows_to_project_id_index IF NOT EXISTS FOR ()-[e:FLOWS_TO]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX flows_to_project_id_index FOR ()-[e:FLOWS_TO]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX flows_to_project_id_index IF NOT EXISTS FOR ()-[e:FLOWS_TO]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX flows_to_project_id_index IF NOT EXISTS FOR ()-[e:FLOWS_TO]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX flows_to_project_id_index FOR ()-[e:FLOWS_TO]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX flows_to_project_id_index IF NOT EXISTS FOR ()-[r:FLOWS_TO]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX calls_project_id_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 8, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX calls_project_id_index FOR ()-[e:CALLS]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX calls_project_id_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX calls_project_id_index FOR ()-[e:CALLS]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX calls_project_id_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX calls_project_id_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX calls_project_id_index FOR ()-[e:CALLS]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX calls_project_id_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX reaches_project_id_index IF NOT EXISTS FOR ()-[r:REACHES]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 10, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX reaches_project_id_index FOR ()-[e:REACHES]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX reaches_project_id_index IF NOT EXISTS FOR ()-[e:REACHES]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX reaches_project_id_index FOR ()-[e:REACHES]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX reaches_project_id_index IF NOT EXISTS FOR ()-[e:REACHES]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX reaches_project_id_index IF NOT EXISTS FOR ()-[e:REACHES]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX reaches_project_id_index FOR ()-[e:REACHES]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX reaches_project_id_index IF NOT EXISTS FOR ()-[r:REACHES]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX depends_on_project_id_index IF NOT EXISTS FOR ()-[r:DEPENDS_ON]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 9, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX depends_on_project_id_index FOR ()-[e:DEPENDS_ON]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX depends_on_project_id_index IF NOT EXISTS FOR ()-[e:DEPENDS_ON]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX depends_on_project_id_index FOR ()-[e:DEPENDS_ON]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX depends_on_project_id_index IF NOT EXISTS FOR ()-[e:DEPENDS_ON]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX depends_on_project_id_index IF NOT EXISTS FOR ()-[e:DEPENDS_ON]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX depends_on_project_id_index FOR ()-[e:DEPENDS_ON]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX depends_on_project_id_index IF NOT EXISTS FOR ()-[r:DEPENDS_ON]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX implements_project_id_index IF NOT EXISTS FOR ()-[r:IMPLEMENTS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 7, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX implements_project_id_index FOR ()-[e:IMPLEMENTS]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX implements_project_id_index IF NOT EXISTS FOR ()-[e:IMPLEMENTS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX implements_project_id_index FOR ()-[e:IMPLEMENTS]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX implements_project_id_index IF NOT EXISTS FOR ()-[e:IMPLEMENTS]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX implements_project_id_index IF NOT EXISTS FOR ()-[e:IMPLEMENTS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX implements_project_id_index FOR ()-[e:IMPLEMENTS]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX implements_project_id_index IF NOT EXISTS FOR ()-[r:IMPLEMENTS]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX tests_project_id_index IF NOT EXISTS FOR ()-[r:TESTS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 7, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX tests_project_id_index FOR ()-[e:TESTS]-() ON (e.project_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX tests_project_id_index IF NOT EXISTS FOR ()-[e:TESTS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX tests_project_id_index FOR ()-[e:TESTS]-() ON (e.project_id)' already exists.", 'title': '`CREATE RANGE INDEX tests_project_id_index IF NOT EXISTS FOR ()-[e:TESTS]-() ON (e.project_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX tests_project_id_index IF NOT EXISTS FOR ()-[e:TESTS]-() ON (e.project_id)' has no effect. The index or constraint specified by 'RANGE INDEX tests_project_id_index FOR ()-[e:TESTS]-() ON (e.project_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX tests_project_id_index IF NOT EXISTS FOR ()-[r:TESTS]-() ON (r.project_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX calls_callsite_id_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.callsite_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 12, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX calls_callsite_id_index FOR ()-[e:CALLS]-() ON (e.callsite_id)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX calls_callsite_id_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.callsite_id)' has no effect. The index or constraint specified by 'RANGE INDEX calls_callsite_id_index FOR ()-[e:CALLS]-() ON (e.callsite_id)' already exists.", 'title': '`CREATE RANGE INDEX calls_callsite_id_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.callsite_id)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX calls_callsite_id_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.callsite_id)' has no effect. The index or constraint specified by 'RANGE INDEX calls_callsite_id_index FOR ()-[e:CALLS]-() ON (e.callsite_id)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX calls_callsite_id_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.callsite_id)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX calls_resolution_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.resolution)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 7, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX calls_resolution_index FOR ()-[e:CALLS]-() ON (e.resolution)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX calls_resolution_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.resolution)' has no effect. The index or constraint specified by 'RANGE INDEX calls_resolution_index FOR ()-[e:CALLS]-() ON (e.resolution)' already exists.", 'title': '`CREATE RANGE INDEX calls_resolution_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.resolution)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX calls_resolution_index IF NOT EXISTS FOR ()-[e:CALLS]-() ON (e.resolution)' has no effect. The index or constraint specified by 'RANGE INDEX calls_resolution_index FOR ()-[e:CALLS]-() ON (e.resolution)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX calls_resolution_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.resolution)'
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX reaches_interprocedural_index IF NOT EXISTS FOR ()-[r:REACHES]-() ON (r.interprocedural)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 8, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'diagnostic_record': {'_classification': 'SCHEMA', '_severity': 'INFORMATION'}, 'gql_status': '00NA0', 'neo4j_code': 'Neo.ClientNotification.Schema.IndexOrConstraintAlreadyExists', 'description': '`RANGE INDEX reaches_interprocedural_index FOR ()-[e:REACHES]-() ON (e.interprocedural)` already exists.', 'status_description': "note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX reaches_interprocedural_index IF NOT EXISTS FOR ()-[e:REACHES]-() ON (e.interprocedural)' has no effect. The index or constraint specified by 'RANGE INDEX reaches_interprocedural_index FOR ()-[e:REACHES]-() ON (e.interprocedural)' already exists.", 'title': '`CREATE RANGE INDEX reaches_interprocedural_index IF NOT EXISTS FOR ()-[e:REACHES]-() ON (e.interprocedural)` has no effect.'}, {'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Received notification from DBMS server: <GqlStatusObject gql_status='00NA0', status_description="note: successful completion - index or constraint already exists. The command 'CREATE RANGE INDEX reaches_interprocedural_index IF NOT EXISTS FOR ()-[e:REACHES]-() ON (e.interprocedural)' has no effect. The index or constraint specified by 'RANGE INDEX reaches_interprocedural_index FOR ()-[e:REACHES]-() ON (e.interprocedural)' already exists.", position=None, raw_classification='SCHEMA', classification=<NotificationClassification.SCHEMA: 'SCHEMA'>, raw_severity='INFORMATION', severity=<NotificationSeverity.INFORMATION: 'INFORMATION'>, diagnostic_record={'_classification': 'SCHEMA', '_severity': 'INFORMATION', 'OPERATION': '', 'OPERATION_CODE': '0', 'CURRENT_SCHEMA': '/'}> for query: 'CREATE INDEX reaches_interprocedural_index IF NOT EXISTS FOR ()-[r:REACHES]-() ON (r.interprocedural)'
+Ensured uniqueness constraint and indexes on Node
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <WORKSPACE> pinning database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'MATCH ()-[r]->() WITH r LIMIT $batch_size DELETE r RETURN count(r) AS deleted' {'batch_size': 10000} {}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 248, 'fields': ['deleted'], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: RECORD * 1
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'gql_status': '00000', 'status_description': 'note: successful completion'}], 'type': 'rw', 't_last': 1476, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'MATCH (n) WITH n LIMIT $batch_size DELETE n RETURN count(n) AS deleted' {'batch_size': 10000} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 24, 'fields': ['deleted'], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: RECORD * 1
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYRkA==', 'statuses': [{'gql_status': '00000', 'status_description': 'note: successful completion'}], 'type': 'rw', 't_last': 137, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Cleared all data from Neo4j (total 0 relationships, 0 nodes)
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <WORKSPACE> pinning database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX node_name_index IF EXISTS' {} {}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 11, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index node_name_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYSkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX node_file_path_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYSkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index node_file_path_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYTkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX node_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYTkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index node_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYUkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX node_project_type_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYUkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index node_project_type_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYVkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX node_project_name_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYVkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index node_project_name_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYWkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX node_project_file_path_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYWkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index node_project_file_path_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYXkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX node_project_fqn_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYXkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index node_project_fqn_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYYkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX parent_of_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYYkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index parent_of_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYZkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX contains_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYZkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index contains_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYakA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX flows_to_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYakA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index flows_to_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYbkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX calls_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYbkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index calls_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYckA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX reaches_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYckA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index reaches_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYdkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX depends_on_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYdkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index depends_on_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYekA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX implements_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYekA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index implements_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYfkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX tests_project_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYfkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index tests_project_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYgkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX calls_callsite_id_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYgkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 9, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index calls_callsite_id_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYhkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX calls_resolution_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYhkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 8, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index calls_resolution_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYikA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'DROP INDEX reaches_interprocedural_index IF EXISTS' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYikA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+Dropped index reaches_interprocedural_index for bulk load
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYjkA==', 'stats': {'contains-updates': True, 'indexes-removed': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Analysis failed: PROJECT_PATH must be a directory, got file: C:\Users\david\AppData\Local\Temp\tmpa7e89v73\pml_calc.py
+Traceback (most recent call last):
+  File "D:\workspace\mflow-cpg\src\omnicpg\orchestrator\pipeline.py", line 242, in run_analysis_pipeline
+    for _chunk_idx, (nodes, edges) in enumerate(stream_iter, 1):
+  File "D:\workspace\mflow-cpg\src\omnicpg\orchestrator\project_orchestrator.py", line 325, in analyze_streaming
+    files = self.scan_directory(directory)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\mflow-cpg\src\omnicpg\orchestrator\project_orchestrator.py", line 251, in scan_directory
+    raise ValueError(f"PROJECT_PATH must be a directory, got file: {path}")
+ValueError: PROJECT_PATH must be a directory, got file: C:\Users\david\AppData\Local\Temp\tmpa7e89v73\pml_calc.py
+Traceback (most recent call last):
+  File "D:\workspace\mflow-cpg\src\omnicpg\orchestrator\pipeline.py", line 242, in run_analysis_pipeline
+    for _chunk_idx, (nodes, edges) in enumerate(stream_iter, 1):
+  File "D:\workspace\mflow-cpg\src\omnicpg\orchestrator\project_orchestrator.py", line 325, in analyze_streaming
+    files = self.scan_directory(directory)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\workspace\mflow-cpg\src\omnicpg\orchestrator\project_orchestrator.py", line 251, in scan_directory
+    raise ValueError(f"PROJECT_PATH must be a directory, got file: {path}")
+ValueError: PROJECT_PATH must be a directory, got file: C:\Users\david\AppData\Local\Temp\tmpa7e89v73\pml_calc.py
+
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <WORKSPACE> pinning database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_name_index IF NOT EXISTS FOR (n:Node) ON (n.name)' {} {}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 8, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYkkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_file_path_index IF NOT EXISTS FOR (n:Node) ON (n.file_path)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYkkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 6, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYlkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_id_index IF NOT EXISTS FOR (n:Node) ON (n.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYlkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYmkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_type_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.type)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYmkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 6, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYnkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_name_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.name)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYnkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYokA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 1, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_file_path_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.file_path)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYokA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYpkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX node_project_fqn_index IF NOT EXISTS FOR (n:Node) ON (n.project_id, n.fqn)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYpkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYqkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX parent_of_project_id_index IF NOT EXISTS FOR ()-[r:PARENT_OF]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYqkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 4, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYrkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX contains_project_id_index IF NOT EXISTS FOR ()-[r:CONTAINS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYrkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYskA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX flows_to_project_id_index IF NOT EXISTS FOR ()-[r:FLOWS_TO]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYskA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYtkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX calls_project_id_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYtkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYukA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX reaches_project_id_index IF NOT EXISTS FOR ()-[r:REACHES]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYukA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYvkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX depends_on_project_id_index IF NOT EXISTS FOR ()-[r:DEPENDS_ON]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYvkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 2, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYwkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX implements_project_id_index IF NOT EXISTS FOR ()-[r:IMPLEMENTS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYwkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYxkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX tests_project_id_index IF NOT EXISTS FOR ()-[r:TESTS]-() ON (r.project_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYxkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYykA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX calls_callsite_id_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.callsite_id)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYykA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 5, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYzkA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 0, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX calls_resolution_index IF NOT EXISTS FOR ()-[r:CALLS]-() ON (r.resolution)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWYzkA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 3, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWY0kA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 1, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+[#0000]  _: <WORKSPACE> routing towards fixed database: None
+[#0000]  _: <POOL> acquire direct connection, access_mode='WRITE', database=AcquisitionDatabase(name=None, guessed=False)
+[#D508]  _: <POOL> picked existing connection bolt-2
+[#D508]  _: <POOL> checked re_auth auth=None updated=False force=False
+[#D508]  _: <POOL> handing out existing connection
+[#D508]  C: RUN 'CREATE INDEX reaches_interprocedural_index IF NOT EXISTS FOR ()-[r:REACHES]-() ON (r.interprocedural)' {} {'bookmarks': ['FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWY0kA==']}
+[#D508]  C: PULL {'n': 1000}
+[#D508]  S: SUCCESS {'t_first': 2, 'fields': [], 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: READY > STREAMING
+[#D508]  S: SUCCESS {'bookmark': 'FB:kcwQxC2Y5Pn4THiTO9YMzAOk3coADWY1kA==', 'stats': {'contains-updates': True, 'indexes-added': 1}, 'statuses': [{'gql_status': '00001', 'status_description': 'note: successful completion - omitted result'}], 'type': 's', 't_last': 1, 'db': 'neo4j'}
+[#D508]  _: <CONNECTION> server state: STREAMING > READY
+[#D508]  _: <POOL> released bolt-2
+Rebuilt secondary indexes after bulk load
+[#0000]  _: <POOL> close
+[#D508]  C: GOODBYE
+[#D508]  C: <CLOSE>
+Disconnected from Neo4j
+Using proactor: IocpProactor
