@@ -23,6 +23,9 @@ Available Tools:
 
 from __future__ import annotations
 
+from mcp_server_omnicpg.tools.agentic_tools import (
+    agentic_workflow,
+)
 from mcp_server_omnicpg.tools.auto_expansion import (
     expand_method_on_demand,
     find_control_flow_with_auto_expand,
@@ -54,6 +57,7 @@ from mcp_server_omnicpg.tools.path_queries import (
 )
 
 __all__ = [
+    "agentic_workflow",
     "analyze_function",
     "expand_method_on_demand",
     "find_control_flow",

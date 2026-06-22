@@ -115,6 +115,10 @@
         {
           "name": "find_control_flow_with_auto_expand",
           "description": "Find control flow paths between nodes, automatically expanding methods along the path if needed"
+        },
+        {
+          "name": "agentic_workflow",
+          "description": "Execute a compound workflow to provide a rich diagnostic payload."
         }
       ]
     }
