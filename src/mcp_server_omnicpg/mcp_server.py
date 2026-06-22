@@ -31,6 +31,7 @@ from mcp_server_omnicpg.tools import (
     find_path,
     get_call_graph,
     get_dependencies,
+    agentic_workflow,
     get_file_structure,
     get_node_by_id,
     get_node_source_code,
@@ -185,6 +186,7 @@ _REQUIRED_PARAMS: dict[str, tuple[str, ...]] = {
     "explain_code": ("node_id",),
     "trace_variable": ("node_id",),
     "get_node_source_code": ("node_id",),
+    "agentic_workflow": ("query",),
 }
 
 # Hints shown when a required parameter is missing, so the caller knows how to
@@ -1536,6 +1538,28 @@ async def list_tools() -> list[Tool]:
                 "required": ["node_id"],
             },
         ),
+        Tool(
+            name="agentic_workflow",
+            description=(
+                "Execute a compound workflow to provide a rich diagnostic payload. "
+                "Combines natural language semantic search with context retrieval and call graph fetching."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Natural-language query describing the issue or functionality.",
+                    },
+                    "project_id": PROJECT_ID_SCHEMA_PROPERTY,
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max number of top matches to analyze (default: 3).",
+                    },
+                },
+                "required": ["query"],
+            },
+        ),
     ]
 
     return tools
@@ -1882,6 +1906,13 @@ def _execute_tool_sync(name: str, arguments: dict[str, Any]) -> list[TextContent
             result = get_node_source_code(
                 node_id=normalized_args["node_id"],
                 project_id=project_id,
+            )
+
+        elif name == "agentic_workflow":
+            result = agentic_workflow(
+                query=normalized_args["query"],
+                project_id=project_id,
+                limit=normalized_args.get("limit", 3),
             )
 
         else:

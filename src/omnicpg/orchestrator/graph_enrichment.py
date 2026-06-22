@@ -543,10 +543,17 @@ def _build_context_str(row: dict[str, Any], node_type: str) -> str:
         if calls:
             # limit to 10 calls for context size
             context_parts.append(f"Calls: {', '.join(calls[:10])}")
+        c2_callees = [c for c in (row.get("c2_callees") or []) if c]
+        if c2_callees:
+            context_parts.append(f"2nd-degree Calls: {', '.join(c2_callees[:10])}")
+
         called_by = [cb for cb in (row.get("called_by") or []) if cb]
         if called_by:
             # limit to 10 callers for context size
             context_parts.append(f"Called by: {', '.join(called_by[:10])}")
+        c2_callers = [cb for cb in (row.get("c2_callers") or []) if cb]
+        if c2_callers:
+            context_parts.append(f"2nd-degree Called by: {', '.join(c2_callers[:10])}")
 
     return " | ".join(context_parts)
 
@@ -598,6 +605,8 @@ def enrich_semantic_intent(
                n.name AS name,
                [(n)-[:CALLS]->(called) | called.name] AS called_methods,
                [(caller:Method)-[:CALLS]->(n) | caller.name] AS called_by,
+               [(n)-[:CALLS]->(:Method)-[:CALLS]->(c2) | c2.name] AS c2_callees,
+               [(c2:Method)-[:CALLS]->(:Method)-[:CALLS]->(n) | c2.name] AS c2_callers,
                [(n)-[:PARENT_OF]->(p:Node) WHERE p.type='formal_parameter' | p.name] AS parameters,
                n.superclass AS parent_class,
                [(n)-[:PARENT_OF]->(m:Method) | m.name] AS class_methods
