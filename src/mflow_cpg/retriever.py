@@ -6,8 +6,7 @@ Registers as the "CODE_GRAPH" recall mode in M-Flow.
 from __future__ import annotations
 
 import logging
-from typing import Any, List, Optional, Type
-from fastapi.encoders import jsonable_encoder
+from typing import Any, Optional
 
 from m_flow.adapters.graph import get_graph_provider
 from m_flow.retrieval.base_retriever import BaseRetriever

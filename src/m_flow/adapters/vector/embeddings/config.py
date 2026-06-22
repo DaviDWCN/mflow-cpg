@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-from pydantic_settings import BaseSettings
 from m_flow.config.env_compat import MflowSettings, SettingsConfigDict
 
 

@@ -381,7 +381,6 @@ async def merge_procedure_content(
     procedure_builder.merge_utils for content merging,
     and raw Cypher for writing back (no update_node in interface).
     """
-    import json
     from m_flow.memory.procedural.procedure_state import fetch_procedure_state
     from m_flow.memory.procedural.procedure_builder.merge_utils import (
         merge_points_text_with_dedup,

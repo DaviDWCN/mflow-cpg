@@ -15,7 +15,6 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Any, Dict, Literal, Optional
 
-from pydantic_settings import BaseSettings
 from m_flow.config.env_compat import MflowSettings, SettingsConfigDict
 
 BACKEND_REDIS = "redis"

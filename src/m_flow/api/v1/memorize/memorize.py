@@ -1,6 +1,6 @@
 import os
 import asyncio
-from typing import Literal, Set, Union, Optional
+from typing import Literal, Set, Union
 from uuid import UUID
 
 from m_flow.config.config import get_memorize_config

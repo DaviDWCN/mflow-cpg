@@ -9,7 +9,7 @@
 
 from __future__ import annotations
 
-from typing import Any, List, NoReturn
+from typing import Any, List
 
 from ..tokenizer_interface import TokenizerInterface
 

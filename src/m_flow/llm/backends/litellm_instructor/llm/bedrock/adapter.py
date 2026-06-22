@@ -17,7 +17,6 @@ from litellm.exceptions import ContentPolicyViolationError
 from pydantic import BaseModel
 
 from m_flow.llm.exceptions import ContentPolicyFilterError, MissingSystemPromptPathError
-from m_flow.llm.LLMGateway import LLMService
 from m_flow.llm.backends.litellm_instructor.llm.llm_interface import (
     LLMBackend,
 )

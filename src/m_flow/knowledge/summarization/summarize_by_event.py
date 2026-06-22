@@ -19,7 +19,6 @@ import structlog
 
 from m_flow.shared.data_models import (
     Section,
-    SectionedSummary,
     ProceduralCandidate,
     ProceduralCandidateList,
 )

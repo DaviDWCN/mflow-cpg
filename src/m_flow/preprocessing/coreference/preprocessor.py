@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Optional
 
 from m_flow.shared.logging_utils import get_logger
 
-from .config import CorefConfig, get_coref_config
+from .config import get_coref_config
 from .session_manager import SessionManager
 
 __all__ = [

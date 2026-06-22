@@ -15,7 +15,7 @@ from sqlalchemy.orm import Mapped, relationship
 from m_flow.adapters.relational import Base
 
 if TYPE_CHECKING:
-    from .Task import Stage
+    pass
 
 from .PipelineTask import PipelineTask
 

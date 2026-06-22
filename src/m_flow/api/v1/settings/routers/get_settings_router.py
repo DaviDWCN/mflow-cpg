@@ -15,7 +15,6 @@ from pydantic import Field
 from m_flow.api.DTO import InDTO, OutDTO
 from m_flow.llm.config import LLMConfig
 from m_flow.adapters.vector.config import VectorConfig
-from m_flow.adapters.vector.embeddings.config import EmbeddingConfig
 
 if TYPE_CHECKING:
     from m_flow.auth.models import User

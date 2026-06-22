@@ -11,7 +11,7 @@ import urllib.request
 import urllib.error
 import time
 import random
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 import networkx as nx
 
 from m_flow.retrieval.base_retriever import BaseRetriever

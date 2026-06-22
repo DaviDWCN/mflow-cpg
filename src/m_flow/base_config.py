@@ -14,7 +14,6 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 import pydantic
-from pydantic_settings import BaseSettings
 from m_flow.config.env_compat import MflowSettings, SettingsConfigDict
 
 from m_flow.root_dir import ensure_absolute_path, get_absolute_path
