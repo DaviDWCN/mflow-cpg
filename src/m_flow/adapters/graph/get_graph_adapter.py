@@ -12,7 +12,6 @@ from typing import Optional
 
 from .config import get_graph_context_config
 from .graph_db_interface import GraphProvider
-from .supported_databases import supported_databases
 
 # ---------------------------------------------------------------------------
 # Public async factory

@@ -8,7 +8,6 @@ Handles create_new, patch (UPSERT), new_version (deprecate+supersedes), and skip
 
 from __future__ import annotations
 
-import json
 from typing import List, Optional
 
 from m_flow.shared.logging_utils import get_logger

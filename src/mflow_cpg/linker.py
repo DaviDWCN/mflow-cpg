@@ -6,9 +6,8 @@ M-Flow Entity nodes (business concepts) and OmniCPG Node nodes (source code stru
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-from m_flow.adapters.graph import get_graph_provider
 
 logger = logging.getLogger("ConceptToCodeLinker")
 

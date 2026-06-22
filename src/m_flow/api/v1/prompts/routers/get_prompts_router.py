@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from m_flow.api.DTO import InDTO, OutDTO
 from m_flow.root_dir import get_absolute_path

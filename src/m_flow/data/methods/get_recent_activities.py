@@ -8,7 +8,6 @@ into a unified activity feed for the dashboard.
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
 

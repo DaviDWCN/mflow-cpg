@@ -14,7 +14,6 @@ from functools import lru_cache
 from typing import Any, Dict, Optional
 
 import pydantic
-from pydantic_settings import BaseSettings
 from m_flow.config.env_compat import MflowSettings, SettingsConfigDict
 
 from m_flow.base_config import get_base_config

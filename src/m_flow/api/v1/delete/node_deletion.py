@@ -7,7 +7,7 @@ Supports precise deletion by node type, reusing existing implementations.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Dict, List, Literal, Optional
+from typing import Dict, List
 from uuid import UUID
 
 from sqlalchemy import or_, update

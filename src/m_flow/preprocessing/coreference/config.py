@@ -7,7 +7,7 @@ session management, history limits, and language settings.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import lru_cache
 from typing import Literal
 

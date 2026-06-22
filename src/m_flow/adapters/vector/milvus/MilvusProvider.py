@@ -13,7 +13,7 @@ Configuration via environment variables::
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, TYPE_CHECKING
 
 from m_flow.shared.logging_utils import get_logger
 

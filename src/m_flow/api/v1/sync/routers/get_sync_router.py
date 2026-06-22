@@ -14,7 +14,6 @@ from fastapi.responses import JSONResponse
 
 from m_flow import __version__ as m_flow_version
 from m_flow.api.DTO import InDTO
-from m_flow.api.v1.sync import SyncResponse
 from m_flow.auth.methods import get_authenticated_user
 from m_flow.auth.models import User
 from m_flow.auth.permissions.methods import get_specific_user_permission_datasets

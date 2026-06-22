@@ -37,7 +37,7 @@ except ImportError as e:
 
 # Register GraphRAG retrievers
 try:
-    import mflow_cpg.graph_rag
+    import mflow_cpg.graph_rag  # noqa: F401
 except ImportError as e:
     logger.warning(f"Failed to import graph_rag module: {e}")
 

@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any, Tuple
 from urllib.parse import urlparse
 
-from pydantic_settings import BaseSettings
 from m_flow.config.env_compat import MflowSettings, SettingsConfigDict
 
 from m_flow.ingestion.core.exceptions import IngestionError

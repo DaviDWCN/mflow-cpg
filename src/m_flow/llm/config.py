@@ -9,7 +9,7 @@ from functools import lru_cache
 from typing import Any, Dict, List, Optional
 
 from pydantic import model_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import SettingsConfigDict
 from m_flow.config.env_compat import MflowSettings
 
 try:
