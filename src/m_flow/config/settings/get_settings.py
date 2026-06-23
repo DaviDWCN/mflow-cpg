@@ -67,8 +67,7 @@ class SettingsDict(BaseModel):
 # ── static catalogues ─────────────────────────────────────────────────
 
 _VECTOR_PROVIDERS: list[dict[str, str]] = [
-    {"value": "lancedb", "label": "LanceDB"},
-    {"value": "pgvector", "label": "PGVector"},
+    {"value": "neo4j", "label": "Neo4j"},
 ]
 
 _LLM_PROVIDERS: list[dict[str, str]] = [{"value": p.value, "label": p.value.capitalize()} for p in SupportedProvider]

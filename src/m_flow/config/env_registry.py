@@ -115,8 +115,8 @@ ENV_REGISTRY: Dict[str, Dict[str, Any]] = {
         "type": "str",
     },
     "VECTOR_DB_PROVIDER": {
-        "default": "lancedb",
-        "description": "Vector database provider (lancedb, chromadb, pinecone)",
+        "default": "neo4j",
+        "description": "Vector database provider (neo4j)",
         "category": "database",
         "type": "str",
     },

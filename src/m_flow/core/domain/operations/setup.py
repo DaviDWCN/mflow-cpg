@@ -18,9 +18,6 @@ from typing import Sequence, Tuple
 from m_flow.adapters.relational import (
     create_db_and_tables as init_relational_db,
 )
-from m_flow.adapters.vector.pgvector import (
-    create_db_and_tables as init_pgvector_db,
-)
 
 _log = logging.getLogger(__name__)
 
@@ -28,7 +25,6 @@ _log = logging.getLogger(__name__)
 # can be added without touching the orchestration logic.
 _INIT_STEPS: Sequence[Tuple[str, object]] = [
     ("relational", init_relational_db),
-    ("pgvector", init_pgvector_db),
 ]
 
 

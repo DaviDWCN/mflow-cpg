@@ -9,7 +9,6 @@ from __future__ import annotations
 import asyncio
 
 from m_flow.adapters.relational import create_db_and_tables as init_relational
-from m_flow.adapters.vector.pgvector import create_db_and_tables as init_pgvector
 from m_flow.context_global_variables import (
     graph_db_config as ctx_graph,
     vector_db_config as ctx_vector,
@@ -42,7 +41,6 @@ async def prepare_backends(
 
     # Initialize databases
     await init_relational()
-    await init_pgvector()
 
     # First-run validations
     await _run_first_time_checks()

@@ -2,7 +2,7 @@
 Vector store configuration management.
 
 Handles connection settings for various vector databases
-including LanceDB, PGVector, ChromaDB, and others.
+including Neo4j.
 """
 
 from __future__ import annotations
@@ -41,10 +41,6 @@ class VectorConfig(MflowSettings):
         # Existing local path -> make absolute
         if url and Path(url).exists():
             self.vector_db_url = ensure_absolute_path(url)
-        # Empty -> default LanceDB location
-        elif not url:
-            base = get_base_config()
-            self.vector_db_url = os.path.join(base.system_root_directory, "databases", "m_flow.lancedb")
 
         return self
 
