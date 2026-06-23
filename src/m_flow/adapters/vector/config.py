@@ -18,7 +18,7 @@ from m_flow.base_config import get_base_config
 from m_flow.root_dir import ensure_absolute_path
 
 
-_DEFAULT_PROVIDER = "lancedb"
+_DEFAULT_PROVIDER = "neo4j"
 _DEFAULT_PORT = 1234
 
 
