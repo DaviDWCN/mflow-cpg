@@ -5,11 +5,13 @@ import os
 import tempfile
 from typing import AsyncGenerator
 from uuid import uuid4
+from unittest.mock import patch
 from m_flow.data.processing.document_types.Document import Document
 from mflow_cpg.chunker import SyntaxAwareCodeChunker
 
 @pytest.mark.anyio
-async def test_syntax_aware_code_chunker_python():
+@patch.object(SyntaxAwareCodeChunker, "_get_contextual_retrieval_prefix", return_value="Mocked Contextual Prefix")
+async def test_syntax_aware_code_chunker_python(mock_get_prefix):
     code = (
         "class MyClass:\n"
         "    def hello(self):\n"
@@ -39,19 +41,24 @@ async def test_syntax_aware_code_chunker_python():
         assert len(chunks) > 0
         # Verify that the chunks contain "# Context: defined in" prefix
         found_context = False
+        found_mock_prefix = False
         for chunk in chunks:
             print("Python Chunk Text:", repr(chunk.text))
             if "# Context: defined in" in chunk.text:
                 found_context = True
                 assert "sample.py" in chunk.text
+            if "# Mocked Contextual Prefix" in chunk.text:
+                found_mock_prefix = True
         assert found_context
+        assert found_mock_prefix
         
     finally:
         if os.path.exists(f_path):
             os.remove(f_path)
 
 @pytest.mark.anyio
-async def test_syntax_aware_code_chunker_java():
+@patch.object(SyntaxAwareCodeChunker, "_get_contextual_retrieval_prefix", return_value="Mocked Java Contextual Prefix")
+async def test_syntax_aware_code_chunker_java(mock_get_prefix):
     code = (
         "package com.ex;\n"
         "public class MyClass {\n"
@@ -82,12 +89,16 @@ async def test_syntax_aware_code_chunker_java():
         assert len(chunks) > 0
         # Verify that the chunks contain "// Context: defined in" prefix
         found_context = False
+        found_mock_prefix = False
         for chunk in chunks:
             print("Java Chunk Text:", repr(chunk.text))
             if "// Context: defined in" in chunk.text:
                 found_context = True
                 assert "sample.java" in chunk.text
+            if "// Mocked Java Contextual Prefix" in chunk.text:
+                found_mock_prefix = True
         assert found_context
+        assert found_mock_prefix
         
     finally:
         if os.path.exists(f_path):
