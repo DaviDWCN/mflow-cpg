@@ -137,11 +137,6 @@ class config:
         graph_fname = graph_cfg.graph_filename
         graph_cfg.graph_file_path = str(db_dir / graph_fname)
 
-        # Update LanceDB path if applicable
-        vec_cfg = _fetch_vector_cfg()
-        if vec_cfg.vector_db_provider == "lancedb":
-            vec_cfg.vector_db_url = str(db_dir / "m_flow.lancedb")
-
     @staticmethod
     def data_root_directory(data_path: str) -> None:
         """Set the root directory for user data storage."""
