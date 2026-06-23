@@ -9,6 +9,7 @@ import os
 import tempfile
 from uuid import NAMESPACE_OID, uuid5
 from typing import AsyncGenerator
+import aiohttp
 
 from m_flow.ingestion.chunking.Chunker import Chunker
 from m_flow.ingestion.chunking.TextChunker import TextChunker
@@ -23,6 +24,59 @@ class SyntaxAwareCodeChunker(Chunker):
     Parses methods and classes as syntactic blocks, creating ContentFragments.
     Falls back to TextChunker for non-code files.
     """
+
+    async def _get_contextual_retrieval_prefix(self, full_document: str, chunk_text: str) -> str:
+        from mflow_cpg.config import get_config
+        config = get_config()
+
+        if not config.semantic_analysis.enabled:
+            return ""
+
+        # Anthropic Contextual Retrieval Prompt
+        system_prompt = "You are an expert software engineer."
+        prompt = (
+            "Here is the full document:\n"
+            "<document>\n"
+            f"{full_document[:8000]}\n" # truncate to avoid overflowing context
+            "</document>\n\n"
+            "Here is the target code chunk we want to situate within the whole document:\n"
+            "<chunk>\n"
+            f"{chunk_text}\n"
+            "</chunk>\n\n"
+            "Please give a short succinct context to situate this chunk within the overall document "
+            "to improve search retrieval of the chunk. Answer only with the succinct context and nothing else."
+        )
+
+        url = f"{config.semantic_analysis.api_base.rstrip('/')}/chat/completions"
+        headers = {"Content-Type": "application/json"}
+        if config.semantic_analysis.api_key:
+            headers["Authorization"] = f"Bearer {config.semantic_analysis.api_key}"
+
+        payload = {
+            "model": config.semantic_analysis.model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.1,
+            "max_tokens": 150,
+        }
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=payload, headers=headers, timeout=20) as resp:
+                    if resp.status == 200:
+                        res_json = await resp.json()
+                        if "choices" in res_json and len(res_json["choices"]) > 0:
+                            content = res_json["choices"][0].get("message", {}).get("content", "").strip()
+                            return content
+                    else:
+                        resp_text = await resp.text()
+                        logger.debug(f"Contextual retrieval API failed with status {resp.status}: {resp_text}")
+        except Exception as e:
+            logger.debug(f"Error fetching contextual retrieval prefix: {e}")
+
+        return ""
 
     async def read(self) -> AsyncGenerator[ContentFragment, None]:
         # 1. Determine if it's a code file
@@ -48,10 +102,15 @@ class SyntaxAwareCodeChunker(Chunker):
             return
 
         # 2. Get full text content
+        # Note: get_text might be an async generator or a normal function depending on the implementation
         content_parts = []
-        async for block in self.get_text():
-            content_parts.append(block)
-        full_content = "".join(content_parts)
+        text_result = self.get_text() # type: ignore
+        if hasattr(text_result, "__aiter__"):
+            async for block in text_result: # type: ignore
+                content_parts.append(block)
+            full_content = "".join(content_parts)
+        else:
+            full_content = str(text_result)
 
         # 3. Create a temporary directory containing only this file to analyze with ProjectOrchestrator
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -105,7 +164,7 @@ class SyntaxAwareCodeChunker(Chunker):
 
                 context_parts = [f"{comment_style} Context: defined in {fqn_or_name} in {node_file_path}"]
 
-                # Contextual Retrieval: Append enclosing Class info to Method
+                # Append enclosing Class info to Method
                 if "Method" in labels and node.id in method_to_class:
                     parent_class = method_to_class[node.id]
                     cls_name = parent_class.properties.get("name")
@@ -114,6 +173,13 @@ class SyntaxAwareCodeChunker(Chunker):
                         context_parts.append(f"{comment_style} Enclosing Class: {cls_fqn or cls_name}")
                         # If intent/summary was available, we could append it here,
                         # but in-memory Orchestrator without Neo4j enrichment won't have LLM intents yet.
+
+                # Contextual Retrieval: Query LLM for context prefix if enabled
+                if "Method" in labels:
+                    contextual_summary = await self._get_contextual_retrieval_prefix(full_content, code_text)
+                    if contextual_summary:
+                        for line in contextual_summary.split("\n"):
+                            context_parts.append(f"{comment_style} {line}")
 
                 context_prefix = "\n".join(context_parts) + "\n"
                 code_text = context_prefix + code_text
