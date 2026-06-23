@@ -99,6 +99,17 @@ def create_vector_engine(
             embedding_engine=embedder,
         )
 
+    # Neo4j - Graph Database with Vector Support
+    if provider_lower == "neo4j":
+        from .neo4j.Neo4jVectorAdapter import Neo4jVectorAdapter
+
+        # Will fallback to unified configuration inside if not provided here
+        return Neo4jVectorAdapter(
+            embedding_engine=embedder,
+            uri=vector_db_url,
+            user=vector_db_key, # Usually API Key is used for user/pass logic, but adapter uses config
+        )
+
     # Unknown provider
     known = list(supported_databases.keys()) + [
         "LanceDB",
@@ -107,6 +118,7 @@ def create_vector_engine(
         "ChromaDB",
         "Pinecone",
         "Milvus",
+        "Neo4j",
     ]
     raise EnvironmentError(f"Unknown vector provider: {vector_db_provider}. Supported: {', '.join(known)}")
 

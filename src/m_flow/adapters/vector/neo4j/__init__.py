@@ -1,0 +1,1 @@
+from .Neo4jVectorAdapter import Neo4jVectorAdapter as Neo4jVectorAdapter
