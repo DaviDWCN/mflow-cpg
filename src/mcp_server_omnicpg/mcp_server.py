@@ -88,7 +88,7 @@ logger = logging.getLogger(__name__)
 app = Server("omnicpg-mcp-server")
 adapter = get_adapter()
 # Keep this exported for SSE health endpoint metadata.
-TOOL_COUNT = 44
+TOOL_COUNT = 45
 _RESOLVED_PROJECT_ID: str | None = None
 _UNSCOPED_TOOLS = {
     "get_server_info",
