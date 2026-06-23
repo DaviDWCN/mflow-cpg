@@ -61,6 +61,21 @@ def _build_adapter(
     """
     provider = graph_database_provider.lower()
 
+    if provider == "kuzu":
+        import os
+        from .kuzu.adapter import KuzuAdapter
+
+        # Determine the database path
+        if not graph_file_path:
+            from m_flow.base_config import get_base_config
+            storage_dir = os.path.join(get_base_config().system_root_directory, "databases")
+            os.makedirs(storage_dir, exist_ok=True)
+            db_path = os.path.join(storage_dir, graph_database_name or "m_flow_graph_kuzu")
+        else:
+            db_path = os.path.join(graph_file_path, graph_database_name or "")
+
+        return KuzuAdapter(db_path=db_path)
+
     if provider != "neo4j":
         # Force/fallback to neo4j as requested
         print(f"[Warning] Enforcing unified Neo4j provider (requested was: {graph_database_provider})")
