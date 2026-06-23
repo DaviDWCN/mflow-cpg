@@ -39,6 +39,7 @@ dependencies = [
     "tree-sitter-java>=0.23.0",
     "networkx>=3.0",
     "neo4j>=5.0",
+    "kuzu>=0.11",
     # MCP server dependencies
     "mcp>=0.1.0",
     "starlette>=0.27.0",
