@@ -13,7 +13,7 @@ from neo4j import AsyncGraphDatabase
 from m_flow.adapters.vector.vector_db_interface import VectorProvider
 from m_flow.core import MemoryNode
 from m_flow.shared.logging_utils import get_logger
-from mflow_cpg.config import get_config
+from m_flow.shared.config_registry import get_global_config
 
 logger = get_logger(__name__)
 
@@ -31,10 +31,11 @@ class Neo4jVectorAdapter(VectorProvider):
         self.embedding_engine = embedding_engine
 
         # Use provided config or fallback to unified configuration
-        self.uri = uri or get_config().neo4j.uri
-        self.user = user or get_config().neo4j.username
-        self.password = password or get_config().neo4j.password
-        self.database = database or get_config().neo4j.database
+        cfg = get_global_config()
+        self.uri = uri or (cfg.neo4j.uri if cfg else "bolt://localhost:7687")
+        self.user = user or (cfg.neo4j.username if cfg else "neo4j")
+        self.password = password or (cfg.neo4j.password if cfg else "password")
+        self.database = database or (cfg.neo4j.database if cfg else "neo4j")
 
         self.driver = AsyncGraphDatabase.driver(
             self.uri,

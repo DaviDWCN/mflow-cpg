@@ -93,8 +93,5 @@ __all__ = [
     "run_custom_pipeline",
 ]
 
-# Auto-register unified retriever if integrated project is available
-try:
-    import mflow_cpg.retriever
-except ImportError:
-    pass
+# Unified retriever auto-registration is now managed by the integration layer
+# (mflow_cpg/__init__.py) to prevent package-level circular imports.

@@ -42,7 +42,7 @@ class TestCallToolAliasNormalization:
             captured.update(kwargs)
             return {"ok": True}
 
-        monkeypatch.setattr(server, "find_control_flow", _fake_find_control_flow)
+        monkeypatch.setitem(server.registry.handlers, "find_control_flow", _fake_find_control_flow)
 
         result = asyncio.run(
             server.call_tool(
@@ -68,7 +68,7 @@ class TestCallToolAliasNormalization:
             captured.update(kwargs)
             return [{"depth": 0}]
 
-        monkeypatch.setattr(server, "apoc_spanning_tree", _fake_apoc_spanning_tree)
+        monkeypatch.setitem(server.registry.handlers, "apoc_spanning_tree", _fake_apoc_spanning_tree)
 
         result = asyncio.run(server.call_tool("apoc_spanning_tree", {"node_id": "root-1"}))
 
@@ -87,7 +87,7 @@ class TestCallToolAliasNormalization:
             captured.update(kwargs)
             return {"count": 0}
 
-        monkeypatch.setattr(server, "semantic_search", _fake_semantic_search)
+        monkeypatch.setitem(server.registry.handlers, "semantic_search", _fake_semantic_search)
 
         result = asyncio.run(server.call_tool("semantic_search", {"query": "Action"}))
 
@@ -142,7 +142,7 @@ class TestProjectScopeResolution:
             captured.update(kwargs)
             return [{"id": "n1"}]
 
-        monkeypatch.setattr(server, "query_nodes", _fake_query_nodes)
+        monkeypatch.setitem(server.registry.handlers, "query_nodes", _fake_query_nodes)
 
         result = asyncio.run(server.call_tool("query_nodes", {"project_id": "proj-a", "limit": 1}))
         payload = json.loads(result[0].text)
@@ -186,7 +186,7 @@ class TestRawApocDispatch:
             captured.update(kwargs)
             return [{"id": "n1"}]
 
-        monkeypatch.setattr(server, "apoc_run_read_query", _fake_read_query)
+        monkeypatch.setitem(server.registry.handlers, "apoc_run_read_query", _fake_read_query)
 
         result = asyncio.run(
             server.call_tool(
@@ -210,7 +210,7 @@ class TestRawApocDispatch:
             captured.update(kwargs)
             return [{"id": "n1"}]
 
-        monkeypatch.setattr(server, "apoc_run_timeboxed_query", _fake_timeboxed_query)
+        monkeypatch.setitem(server.registry.handlers, "apoc_run_timeboxed_query", _fake_timeboxed_query)
 
         result = asyncio.run(
             server.call_tool(
@@ -266,7 +266,7 @@ class TestNodeIdAliasNormalization:
             captured.update(kwargs)
             return {"ok": True}
 
-        monkeypatch.setattr(server, "analyze_function", _fake_analyze_function)
+        monkeypatch.setitem(server.registry.handlers, "analyze_function", _fake_analyze_function)
 
         result = asyncio.run(server.call_tool("analyze_function", {"node_id": "fn-1"}))
         payload = json.loads(result[0].text)
@@ -285,7 +285,7 @@ class TestNodeIdAliasNormalization:
             captured.update(kwargs)
             return {"expanded": True}
 
-        monkeypatch.setattr(server, "expand_method_on_demand", _fake_expand)
+        monkeypatch.setitem(server.registry.handlers, "expand_method_on_demand", _fake_expand)
 
         result = asyncio.run(server.call_tool("expand_method_on_demand", {"node_id": "m-1"}))
         payload = json.loads(result[0].text)
@@ -395,22 +395,22 @@ class TestProjectIdDispatchForwarding:
 
             return _inner
 
-        monkeypatch.setattr(
-            server,
+        monkeypatch.setitem(
+            server.registry.handlers,
             "get_architecture_metrics",
             _capture("get_architecture_metrics"),
         )
-        monkeypatch.setattr(server, "apoc_expand_path", _capture("apoc_expand_path"))
-        monkeypatch.setattr(
-            server,
+        monkeypatch.setitem(server.registry.handlers, "apoc_expand_path", _capture("apoc_expand_path"))
+        monkeypatch.setitem(
+            server.registry.handlers,
             "apoc_subgraph_around_node",
             _capture("apoc_subgraph_around_node"),
         )
-        monkeypatch.setattr(server, "apoc_shortest_path", _capture("apoc_shortest_path"))
-        monkeypatch.setattr(server, "apoc_spanning_tree", _capture("apoc_spanning_tree"))
-        monkeypatch.setattr(server, "find_callsite_method", _capture("find_callsite_method"))
-        monkeypatch.setattr(server, "find_callers_of", _capture("find_callers_of"))
-        monkeypatch.setattr(server, "batch_callsite_methods", _capture("batch_callsite_methods"))
+        monkeypatch.setitem(server.registry.handlers, "apoc_shortest_path", _capture("apoc_shortest_path"))
+        monkeypatch.setitem(server.registry.handlers, "apoc_spanning_tree", _capture("apoc_spanning_tree"))
+        monkeypatch.setitem(server.registry.handlers, "find_callsite_method", _capture("find_callsite_method"))
+        monkeypatch.setitem(server.registry.handlers, "find_callers_of", _capture("find_callers_of"))
+        monkeypatch.setitem(server.registry.handlers, "batch_callsite_methods", _capture("batch_callsite_methods"))
 
         calls = [
             ("get_architecture_metrics", {}),

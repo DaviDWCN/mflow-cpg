@@ -108,9 +108,9 @@ class GraphConfig(MflowSettings):
 @lru_cache(maxsize=1)
 def get_graph_config() -> GraphConfig:
     """Return the process-level ``GraphConfig`` singleton."""
-    try:
-        from mflow_cpg import get_config
-        unified_cfg = get_config()
+    from m_flow.shared.config_registry import get_global_config
+    unified_cfg = get_global_config()
+    if unified_cfg is not None:
         provider = os.getenv("GRAPH_DATABASE_PROVIDER", os.getenv("MFLOW_GRAPH_DATABASE_PROVIDER", "neo4j"))
         if provider.lower() == "kuzu":
             return GraphConfig(
@@ -125,8 +125,7 @@ def get_graph_config() -> GraphConfig:
             graph_database_name=unified_cfg.neo4j.database,
             graph_dataset_database_handler="neo4j"
         )
-    except ImportError:
-        return GraphConfig()
+    return GraphConfig()
 
 
 def get_graph_context_config() -> dict[str, Any]:

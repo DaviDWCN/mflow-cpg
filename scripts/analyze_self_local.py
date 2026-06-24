@@ -153,14 +153,20 @@ async def main():
     
     for name, canonical, desc in concepts:
         entity_id = f"entity_{name}"
-        # Search for matching Class/Method nodes
+        names_to_match = {n for n in (name, canonical) if n}
+        # Search for matching Class/Method/Module nodes
         for node_id, props in kuzu_nodes:
             if props.get("type") in ("Class", "Method", "Module"):
                 node_name = props.get("name", "")
                 node_fqn = props.get("fqn", "")
                 
                 # Check match
-                if node_name == name or node_fqn.endswith(name):
+                matched = False
+                for match_name in names_to_match:
+                    if node_name == match_name or node_fqn.endswith(match_name):
+                        matched = True
+                        break
+                if matched:
                     await db.add_edge(entity_id, node_id, "IMPLEMENTED_BY")
                     await db.add_edge(node_id, entity_id, "IMPLEMENTS_CONCEPT")
                     links_created += 1
@@ -170,3 +176,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+

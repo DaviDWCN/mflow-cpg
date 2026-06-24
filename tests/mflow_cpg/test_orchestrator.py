@@ -77,12 +77,13 @@ async def test_memory_orchestrator_reranker_integration():
     mock_session.post.return_value = MockResponseContextManager(mock_resp)
     
     with patch("aiohttp.ClientSession", return_value=MockClientSessionContextManager(mock_session)):
-        with patch("mflow_cpg.config.get_config", return_value=unified_config):
-            # Call retrieve
-            result = await orchestrator.retrieve("test query")
-            
-            # Assertions
-            assert len(result.merged_edges) == 2
+        with patch("m_flow.shared.config_registry.get_global_config", return_value=unified_config):
+            with patch("mflow_cpg.config.get_config", return_value=unified_config):
+                # Call retrieve
+                result = await orchestrator.retrieve("test query")
+                
+                # Assertions
+                assert len(result.merged_edges) == 2
             # The order should be updated by the reranker (index 1 / edge_c should be first)
             assert result.merged_edges[0] == edge_c
             assert result.merged_edges[1] == edge_a

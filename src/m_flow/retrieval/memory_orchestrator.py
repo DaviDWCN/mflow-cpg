@@ -272,9 +272,9 @@ class MemoryOrchestrator:
         result.merged_edges = self._merge_edges(result)
 
         # Apply reranking if enabled
-        from mflow_cpg.config import get_config
-        config = get_config()
-        if config.reranker and config.reranker.enabled:
+        from m_flow.shared.config_registry import get_global_config
+        config = get_global_config()
+        if config is not None and config.reranker and config.reranker.enabled:
             result.merged_edges = await self._rerank_edges(query, result.merged_edges, config.reranker)
 
         # Build partitioned blocks

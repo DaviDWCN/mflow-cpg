@@ -3,16 +3,39 @@ from __future__ import annotations
 import hashlib
 import logging
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
+
+if TYPE_CHECKING:
+    from omnicpg.interfaces.language_plugin import LanguagePlugin
 
 from omnicpg.adapters.neo4j_adapter import Neo4jAdapter
 from omnicpg.models.analysis_level import AnalysisLevel
 from omnicpg.orchestrator.project_orchestrator import ProjectOrchestrator
 
-if TYPE_CHECKING:
-    from omnicpg.interfaces.language_plugin import LanguagePlugin
-
 logger = logging.getLogger(__name__)
+
+
+# registries for dependency inversion
+_config_provider: Callable[[], Any] | None = None
+_post_processors: list[Callable[[Neo4jAdapter, str], None]] = []
+
+
+def register_config_provider(provider_fn: Callable[[], Any]) -> None:
+    """Register a configuration provider callback."""
+    global _config_provider
+    _config_provider = provider_fn
+
+
+def register_pipeline_post_processor(post_proc_fn: Callable[[Neo4jAdapter, str], None]) -> None:
+    """Register a post-processor to run after AST parsing and graph enrichment."""
+    _post_processors.append(post_proc_fn)
+
+
+def get_config() -> Any:
+    """Get the process-level configuration from the registered provider."""
+    if _config_provider is not None:
+        return _config_provider()
+    return None
 
 
 def _derive_project_id(project_path: str) -> str:
@@ -90,16 +113,16 @@ def run_analysis_pipeline(
 ) -> dict[str, Any]:
     """End-to-end analysis pipeline."""
     try:
-        from mflow_cpg import get_config
         unified_cfg = get_config()
-        if not uri:
-            uri = unified_cfg.neo4j.uri
-        if not user:
-            user = unified_cfg.neo4j.username
-        if not password:
-            password = unified_cfg.neo4j.password
-        if analysis_level is None:
-            analysis_level = AnalysisLevel(unified_cfg.cpg.analysis_level)
+        if unified_cfg is not None:
+            if not uri:
+                uri = unified_cfg.neo4j.uri
+            if not user:
+                user = unified_cfg.neo4j.username
+            if not password:
+                password = unified_cfg.neo4j.password
+            if analysis_level is None:
+                analysis_level = AnalysisLevel(unified_cfg.cpg.analysis_level)
     except Exception:
         if not uri:
             uri = "bolt://localhost:7687"
@@ -278,16 +301,12 @@ def run_analysis_pipeline(
                 logger.warning(f"CHA Polymorphism edge materialization failed: {e}", exc_info=True)
             role_summary = classify_architectural_roles(adapter, project_id)
 
-            try:
-                from mflow_cpg import get_config
-                from mflow_cpg.semantic_engine import SemanticEnrichmentEngine
-                unified_cfg = get_config()
-                if unified_cfg.semantic_analysis.enabled:
-                    logger.info("Running unified LLM semantic enrichment engine")
-                    engine = SemanticEnrichmentEngine(adapter, unified_cfg)
-                    engine.enrich_project(project_id)
-            except Exception as e:
-                logger.warning(f"Unified Semantic Enrichment Engine failed: {e}", exc_info=True)
+            # Run registered post-processors (e.g., LLM semantic enrichment)
+            for post_proc in _post_processors:
+                try:
+                    post_proc(adapter, project_id)
+                except Exception as e:
+                    logger.warning(f"Pipeline post-processor failed: {e}", exc_info=True)
         except Exception:
             logger.warning("Graph enrichment pass failed", exc_info=True)
         try:

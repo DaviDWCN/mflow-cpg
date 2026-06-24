@@ -64,9 +64,9 @@ class EmbeddingConfig(MflowSettings):
 @lru_cache
 def get_embedding_config() -> EmbeddingConfig:
     """Cached config singleton."""
-    try:
-        from mflow_cpg import get_config
-        unified_cfg = get_config()
+    from m_flow.shared.config_registry import get_global_config
+    unified_cfg = get_global_config()
+    if unified_cfg is not None:
         # nomic-embed-text uses 768 dimensions, while others (like OpenAI) use 1536/3072.
         dims = 768 if "nomic" in unified_cfg.embedding.model.lower() or unified_cfg.embedding.provider.lower() == "ollama" else 1536
         return EmbeddingConfig(
@@ -76,5 +76,4 @@ def get_embedding_config() -> EmbeddingConfig:
             embedding_api_key=unified_cfg.embedding.api_key,
             embedding_dimensions=dims,
         )
-    except ImportError:
-        return EmbeddingConfig()
+    return EmbeddingConfig()

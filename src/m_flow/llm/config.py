@@ -205,14 +205,13 @@ def _check_env_group(names: List[str], label: str) -> None:
 @lru_cache(maxsize=1)
 def get_llm_config() -> LLMConfig:
     """Return the cached LLM configuration instance."""
-    try:
-        from mflow_cpg import get_config
-        unified_cfg = get_config()
+    from m_flow.shared.config_registry import get_global_config
+    unified_cfg = get_global_config()
+    if unified_cfg is not None:
         return LLMConfig(
             llm_provider=unified_cfg.llm.provider,
             llm_model=unified_cfg.llm.model,
             llm_endpoint=unified_cfg.llm.endpoint,
             llm_api_key=unified_cfg.llm.api_key,
         )
-    except ImportError:
-        return LLMConfig()
+    return LLMConfig()
