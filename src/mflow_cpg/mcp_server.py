@@ -235,32 +235,34 @@ def main():
     else:
         from starlette.applications import Starlette
         from starlette.routing import Route
+        from starlette.responses import Response
         import uvicorn
         
-        sse = SseServerTransport("/sse")
+        sse = SseServerTransport("/messages")
+        
+        async def handle_sse(request):
+            async with sse.connect_sse(
+                request.scope, request.receive, request._send
+            ) as (read_stream, write_stream):
+                await app.run(
+                    read_stream,
+                    write_stream,
+                    InitializationOptions(
+                        server_name="mflow-cpg-mcp-server",
+                        server_version="0.1.0",
+                        capabilities=ServerCapabilities(
+                            tools=ToolsCapability()
+                        )
+                    )
+                )
+            return Response()
+
         starlette_app = Starlette(
             routes=[
-                Route("/sse", endpoint=sse.handle_sse_request),
+                Route("/sse", endpoint=handle_sse),
                 Route("/messages", endpoint=sse.handle_post_message, methods=["POST"])
             ]
         )
-
-        async def run_sse():
-            await app.run(
-                sse.read_stream,
-                sse.write_stream,
-                InitializationOptions(
-                    server_name="mflow-cpg-mcp-server",
-                    server_version="0.1.0",
-                    capabilities=ServerCapabilities(
-                        tools=ToolsCapability()
-                    )
-                )
-            )
-
-        @starlette_app.on_event("startup")
-        def startup():
-            asyncio.create_task(run_sse())
 
         logger.info(f"Starting SSE MCP Server on port {args.port}...")
         uvicorn.run(starlette_app, host="0.0.0.0", port=args.port)
