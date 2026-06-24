@@ -19,7 +19,7 @@ import heapq
 import math
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from m_flow.retrieval.time.query_time_parser import parse_query_time, QueryTimeInfo
 from m_flow.retrieval.time.time_bonus import compute_time_match, TimeBonusConfig
@@ -200,6 +200,276 @@ class ProcedureBundle:
 # ─────────────────────────────────────────────
 
 
+async def _preprocess_search_query(
+    query: str,
+    enable_time_bonus: bool,
+    vector_engine: Any,
+) -> Tuple[str, str, bool, str, Optional[QueryTimeInfo], List[float]]:
+    original_query = query
+    time_info: Optional[QueryTimeInfo] = None
+    if enable_time_bonus:
+        time_info = parse_query_time(query)
+        if time_info.query_wo_time:
+            query = time_info.query_wo_time
+
+    vector_query = _strip_question_words(query) or query
+    use_hybrid = _should_use_hybrid(query, threshold=3)
+    keyword = re.sub(r"[\s，,。.；;：:！!]+", "", _strip_question_words(query))
+
+    query_vector = (await vector_engine.embedding_engine.embed_text([vector_query]))[0]
+    return original_query, vector_query, use_hybrid, keyword, time_info, query_vector
+
+
+def _build_search_adjacency(
+    memory_fragment: Any,
+    edge_distances: Optional[List[Any]],
+    edge_miss_cost: float,
+) -> Tuple[Dict[str, float], Set[str], Dict[str, Set[str]], Dict[str, Set[str]], Dict[Tuple[str, str], Edge]]:
+    edge_hit_map: Dict[str, float] = {}
+    if edge_distances:
+        for r in edge_distances:
+            try:
+                txt = str((getattr(r, "payload", {}) or {}).get("text", "") or "")
+                if txt:
+                    s = float(getattr(r, "score", 1.0))
+                    prev = edge_hit_map.get(txt)
+                    edge_hit_map[txt] = s if prev is None else min(prev, s)
+            except Exception:
+                continue
+
+    proc_ids: Set[str] = set()
+    key_points_by_proc: Dict[str, Set[str]] = {}
+    ctx_points_by_proc: Dict[str, Set[str]] = {}
+    proc_point_edge: Dict[Tuple[str, str], Edge] = {}
+
+    # Legacy intermediate
+    proc_to_packs: Dict[str, Set[str]] = {}
+    pack_to_points: Dict[str, Set[str]] = {}
+    legacy_pack_point_edge: Dict[Tuple[str, str], Edge] = {}
+    pack_is_steps: Dict[str, bool] = {}  # True=steps, False=context
+
+    for e in memory_fragment.edges:
+        kind = _classify_edge(e)
+        id1, id2 = str(e.node1.id), str(e.node2.id)
+        t1, t2 = _node_type(e.node1), _node_type(e.node2)
+
+        if kind == "proc_key_point":
+            pid = id1 if t1 == "Procedure" else id2
+            pt = id2 if t1 == "Procedure" else id1
+            proc_ids.add(pid)
+            key_points_by_proc.setdefault(pid, set()).add(pt)
+            proc_point_edge[(pid, pt)] = e
+
+        elif kind == "proc_ctx_point":
+            pid = id1 if t1 == "Procedure" else id2
+            pt = id2 if t1 == "Procedure" else id1
+            proc_ids.add(pid)
+            ctx_points_by_proc.setdefault(pid, set()).add(pt)
+            proc_point_edge[(pid, pt)] = e
+
+        elif kind == "legacy_proc_pack":
+            pid = id1 if t1 == "Procedure" else id2
+            pack = id2 if t1 == "Procedure" else id1
+            pack_type = t2 if t1 == "Procedure" else t1
+            proc_ids.add(pid)
+            proc_to_packs.setdefault(pid, set()).add(pack)
+            pack_is_steps[pack] = pack_type == "ProcedureStepsPack"
+
+        elif kind == "legacy_pack_point":
+            pack = id1 if "Pack" in t1 else id2
+            pt = id2 if "Pack" in t1 else id1
+            pack_to_points.setdefault(pack, set()).add(pt)
+            legacy_pack_point_edge[(pack, pt)] = e
+
+    # Legacy expansion: proc→pack→point ⇒ proc→point
+    for pid, packs in proc_to_packs.items():
+        for pack_id in packs:
+            is_steps = pack_is_steps.get(pack_id, True)
+            for pt in pack_to_points.get(pack_id, set()):
+                if is_steps:
+                    key_points_by_proc.setdefault(pid, set()).add(pt)
+                else:
+                    ctx_points_by_proc.setdefault(pid, set()).add(pt)
+                # Use legacy edge (pack→point) if no direct edge exists
+                if (pid, pt) not in proc_point_edge:
+                    leg_edge = legacy_pack_point_edge.get((pack_id, pt))
+                    if leg_edge:
+                        proc_point_edge[(pid, pt)] = leg_edge
+
+    return edge_hit_map, proc_ids, key_points_by_proc, ctx_points_by_proc, proc_point_edge
+
+
+def _score_procedure_bundles(
+    proc_ids: Set[str],
+    memory_fragment: Any,
+    best_by_id: Dict[str, float],
+    key_points_by_proc: Dict[str, Set[str]],
+    ctx_points_by_proc: Dict[str, Set[str]],
+    proc_point_edge: Dict[Tuple[str, str], Edge],
+    edge_hit_map: Dict[str, float],
+    edge_miss_cost: float,
+    hop_cost: float,
+    direct_procedure_penalty: float,
+    inactive_penalty: float,
+    time_info: Optional[QueryTimeInfo],
+    time_conf_min: float,
+    time_bonus_max: float,
+    time_score_floor: float,
+) -> List[ProcedureBundle]:
+    INF = float("inf")
+
+    def direct_cost(nid: str) -> float:
+        return float(best_by_id.get(nid, INF))
+
+    def edge_cost(e: Edge) -> float:
+        k = _edge_text(e)
+        return float(edge_hit_map.get(k, edge_miss_cost)) if k else float(edge_miss_cost)
+
+    proc_status: Dict[str, str] = {}
+    for nid, node in memory_fragment.nodes.items():
+        if _node_type(node) == "Procedure":
+            props = node.attributes.get("properties") or {}
+            if isinstance(props, str):
+                import json
+                try:
+                    props = json.loads(props)
+                except Exception:
+                    props = {}
+            proc_status[str(nid)] = props.get("status") or node.attributes.get("status") or "active"
+
+    bundles: List[ProcedureBundle] = []
+
+    for pid in proc_ids:
+        raw = direct_cost(pid)
+        best = (raw + direct_procedure_penalty) if not math.isinf(raw) else INF
+        best_path = "direct_procedure"
+        best_point_id = None
+
+        # Via KeyPoint
+        for pt in key_points_by_proc.get(pid, set()):
+            pd = direct_cost(pt)
+            if math.isinf(pd):
+                continue
+            eobj = proc_point_edge.get((pid, pt))
+            if not eobj:
+                continue
+            c = pd + edge_cost(eobj) + hop_cost
+            if c < best:
+                best, best_path, best_point_id = c, "key_point", pt
+
+        # Via ContextPoint
+        for pt in ctx_points_by_proc.get(pid, set()):
+            pd = direct_cost(pt)
+            if math.isinf(pd):
+                continue
+            eobj = proc_point_edge.get((pid, pt))
+            if not eobj:
+                continue
+            c = pd + edge_cost(eobj) + hop_cost
+            if c < best:
+                best, best_path, best_point_id = c, "context_point", pt
+
+        if math.isinf(best):
+            continue
+
+        if proc_status.get(pid, "active") != "active":
+            best += inactive_penalty
+
+        bundles.append(
+            ProcedureBundle(
+                procedure_id=pid,
+                score=best,
+                best_path=best_path,
+                best_point_id=best_point_id,
+            )
+        )
+
+    if not bundles:
+        return []
+
+    # Time bonus
+    if time_info and time_info.has_time and time_info.confidence >= time_conf_min:
+        time_cfg = TimeBonusConfig(
+            enabled=True,
+            bonus_max=time_bonus_max,
+            score_floor=time_score_floor,
+            query_conf_min=time_conf_min,
+            created_at_weight=0.8,
+        )
+        for b in bundles:
+            proc_node = memory_fragment.nodes.get(b.procedure_id)
+            if proc_node:
+                tb = compute_time_match({"payload": proc_node.attributes}, time_info, time_cfg)
+                if tb.bonus > 0:
+                    b.score = max(time_score_floor, b.score - tb.bonus)
+
+    return bundles
+
+
+def _assemble_output_edges(
+    bundles: List[ProcedureBundle],
+    top_k: int,
+    key_points_by_proc: Dict[str, Set[str]],
+    ctx_points_by_proc: Dict[str, Set[str]],
+    proc_point_edge: Dict[Tuple[str, str], Edge],
+    best_by_id: Dict[str, float],
+) -> Tuple[List[Edge], List[ProcedureBundle]]:
+    INF = float("inf")
+
+    def direct_cost(nid: str) -> float:
+        return float(best_by_id.get(nid, INF))
+
+    top_bundles = heapq.nsmallest(top_k, bundles, key=lambda b: b.score)
+    top_proc_ids = {b.procedure_id for b in top_bundles}
+    bundle_rank = {b.procedure_id: i for i, b in enumerate(top_bundles)}
+
+    out_edges: List[Edge] = []
+    out_seen: Set[Tuple[str, str]] = set()
+
+    def push_edge(e: Edge):
+        k = (str(e.node1.id), str(e.node2.id))
+        rk = (k[1], k[0])
+        if k in out_seen or rk in out_seen:
+            return
+        out_seen.add(k)
+        out_edges.append(e)
+
+    for b in top_bundles:
+        pid = b.procedure_id
+
+        # Best-path edge
+        if b.best_point_id:
+            e = proc_point_edge.get((pid, b.best_point_id))
+            if e:
+                push_edge(e)
+
+        # All direct point edges for this procedure
+        for pt in key_points_by_proc.get(pid, set()):
+            e = proc_point_edge.get((pid, pt))
+            if e:
+                push_edge(e)
+        for pt in ctx_points_by_proc.get(pid, set()):
+            e = proc_point_edge.get((pid, pt))
+            if e:
+                push_edge(e)
+
+    # Sort by bundle rank → edge cost
+    def _edge_proc(e: Edge) -> str:
+        for nid in (str(e.node1.id), str(e.node2.id)):
+            if nid in top_proc_ids:
+                return nid
+        return ""
+
+    def _sort_key(e: Edge):
+        owner = _edge_proc(e)
+        rank = bundle_rank.get(owner, 10**9)
+        cost = min(direct_cost(str(e.node1.id)), direct_cost(str(e.node2.id)))
+        return (rank, cost)
+
+    out_edges.sort(key=_sort_key)
+    return out_edges, top_bundles
+
+
 async def procedural_bundle_search(
     query: str,
     top_k: int = 5,
@@ -256,21 +526,14 @@ async def procedural_bundle_search(
 
     vector_engine = get_vector_provider()
 
-    # ── Query preprocessing ──
-    original_query = query
-    time_info: Optional[QueryTimeInfo] = None
-    if enable_time_bonus:
-        time_info = parse_query_time(query)
-        if time_info.query_wo_time:
-            query = time_info.query_wo_time
+    # 1. Query preprocessing & vector embedding
+    original_query, vector_query, use_hybrid, keyword, time_info, query_vector = await _preprocess_search_query(
+        query=query,
+        enable_time_bonus=enable_time_bonus,
+        vector_engine=vector_engine,
+    )
 
-    vector_query = _strip_question_words(query) or query
-    use_hybrid = _should_use_hybrid(query, threshold=3)
-    keyword = re.sub(r"[\s，,。.；;：:！!]+", "", _strip_question_words(query))
-
-    query_vector = (await vector_engine.embedding_engine.embed_text([vector_query]))[0]
-
-    # ── Vector search ──
+    # 2. Vector search
     async def search_col(col: str):
         try:
             return await vector_engine.search(
@@ -308,7 +571,7 @@ async def procedural_bundle_search(
         if max_relevant_ids and len(relevant_ids) > max_relevant_ids:
             relevant_ids = relevant_ids[:max_relevant_ids]
 
-        # ── Two-phase graph projection ──
+        # 3. Two-phase graph projection
         frag1 = await get_procedural_memory_fragment(
             procedural_nodeset_name=procedural_nodeset_name,
             properties_to_project=properties_to_project,
@@ -354,225 +617,49 @@ async def procedural_bundle_search(
         if not memory_fragment or not memory_fragment.edges:
             return ([], []) if return_bundles else []
 
-        # ── Edge hit map ──
-        edge_hit_map: Dict[str, float] = {}
-        if edge_distances:
-            for r in edge_distances:
-                try:
-                    txt = str((getattr(r, "payload", {}) or {}).get("text", "") or "")
-                    if txt:
-                        s = float(getattr(r, "score", 1.0))
-                        prev = edge_hit_map.get(txt)
-                        edge_hit_map[txt] = s if prev is None else min(prev, s)
-                except Exception:
-                    continue
-
-        INF = float("inf")
-
-        def direct_cost(nid: str) -> float:
-            return float(best_by_id.get(nid, INF))
-
-        def edge_cost(e: Edge) -> float:
-            k = _edge_text(e)
-            return float(edge_hit_map.get(k, edge_miss_cost)) if k else float(edge_miss_cost)
-
-        # ── Build adjacency (new + legacy) ──
-        proc_ids: Set[str] = set()
-        key_points_by_proc: Dict[str, Set[str]] = {}
-        ctx_points_by_proc: Dict[str, Set[str]] = {}
-        proc_point_edge: Dict[Tuple[str, str], Edge] = {}
-
-        # Legacy intermediate
-        proc_to_packs: Dict[str, Set[str]] = {}
-        pack_to_points: Dict[str, Set[str]] = {}
-        legacy_pack_point_edge: Dict[Tuple[str, str], Edge] = {}
-        pack_is_steps: Dict[str, bool] = {}  # True=steps, False=context
-
-        for e in memory_fragment.edges:
-            kind = _classify_edge(e)
-            id1, id2 = str(e.node1.id), str(e.node2.id)
-            t1, t2 = _node_type(e.node1), _node_type(e.node2)
-
-            if kind == "proc_key_point":
-                pid = id1 if t1 == "Procedure" else id2
-                pt = id2 if t1 == "Procedure" else id1
-                proc_ids.add(pid)
-                key_points_by_proc.setdefault(pid, set()).add(pt)
-                proc_point_edge[(pid, pt)] = e
-
-            elif kind == "proc_ctx_point":
-                pid = id1 if t1 == "Procedure" else id2
-                pt = id2 if t1 == "Procedure" else id1
-                proc_ids.add(pid)
-                ctx_points_by_proc.setdefault(pid, set()).add(pt)
-                proc_point_edge[(pid, pt)] = e
-
-            elif kind == "legacy_proc_pack":
-                pid = id1 if t1 == "Procedure" else id2
-                pack = id2 if t1 == "Procedure" else id1
-                pack_type = t2 if t1 == "Procedure" else t1
-                proc_ids.add(pid)
-                proc_to_packs.setdefault(pid, set()).add(pack)
-                pack_is_steps[pack] = pack_type == "ProcedureStepsPack"
-
-            elif kind == "legacy_pack_point":
-                pack = id1 if "Pack" in t1 else id2
-                pt = id2 if "Pack" in t1 else id1
-                pack_to_points.setdefault(pack, set()).add(pt)
-                legacy_pack_point_edge[(pack, pt)] = e
-
-        # Legacy expansion: proc→pack→point ⇒ proc→point
-        for pid, packs in proc_to_packs.items():
-            for pack_id in packs:
-                is_steps = pack_is_steps.get(pack_id, True)
-                for pt in pack_to_points.get(pack_id, set()):
-                    if is_steps:
-                        key_points_by_proc.setdefault(pid, set()).add(pt)
-                    else:
-                        ctx_points_by_proc.setdefault(pid, set()).add(pt)
-                    # Use legacy edge (pack→point) if no direct edge exists
-                    if (pid, pt) not in proc_point_edge:
-                        leg_edge = legacy_pack_point_edge.get((pack_id, pt))
-                        if leg_edge:
-                            proc_point_edge[(pid, pt)] = leg_edge
+        # 4. Adjacency construction & legacy pack expansion
+        edge_hit_map, proc_ids, key_points_by_proc, ctx_points_by_proc, proc_point_edge = _build_search_adjacency(
+            memory_fragment=memory_fragment,
+            edge_distances=edge_distances,
+            edge_miss_cost=edge_miss_cost,
+        )
 
         if not proc_ids:
             return ([], []) if return_bundles else []
 
-        # ── Procedure status ──
-        proc_status: Dict[str, str] = {}
-        for nid, node in memory_fragment.nodes.items():
-            if _node_type(node) == "Procedure":
-                props = node.attributes.get("properties") or {}
-                if isinstance(props, str):
-                    import json
-
-                    try:
-                        props = json.loads(props)
-                    except Exception:
-                        props = {}
-                proc_status[str(nid)] = props.get("status") or node.attributes.get("status") or "active"
-
-        # ── Bundle scoring (1-hop, like Episodic) ──
-        bundles: List[ProcedureBundle] = []
-
-        for pid in proc_ids:
-            raw = direct_cost(pid)
-            best = (raw + direct_procedure_penalty) if not math.isinf(raw) else INF
-            best_path = "direct_procedure"
-            best_point_id = None
-
-            # Via KeyPoint
-            for pt in key_points_by_proc.get(pid, set()):
-                pd = direct_cost(pt)
-                if math.isinf(pd):
-                    continue
-                eobj = proc_point_edge.get((pid, pt))
-                if not eobj:
-                    continue
-                c = pd + edge_cost(eobj) + hop_cost
-                if c < best:
-                    best, best_path, best_point_id = c, "key_point", pt
-
-            # Via ContextPoint
-            for pt in ctx_points_by_proc.get(pid, set()):
-                pd = direct_cost(pt)
-                if math.isinf(pd):
-                    continue
-                eobj = proc_point_edge.get((pid, pt))
-                if not eobj:
-                    continue
-                c = pd + edge_cost(eobj) + hop_cost
-                if c < best:
-                    best, best_path, best_point_id = c, "context_point", pt
-
-            if math.isinf(best):
-                continue
-
-            # Inactive penalty
-            if proc_status.get(pid, "active") != "active":
-                best += inactive_penalty
-
-            bundles.append(
-                ProcedureBundle(
-                    procedure_id=pid,
-                    score=best,
-                    best_path=best_path,
-                    best_point_id=best_point_id,
-                )
-            )
+        # 5. Bundle scoring
+        bundles = _score_procedure_bundles(
+            proc_ids=proc_ids,
+            memory_fragment=memory_fragment,
+            best_by_id=best_by_id,
+            key_points_by_proc=key_points_by_proc,
+            ctx_points_by_proc=ctx_points_by_proc,
+            proc_point_edge=proc_point_edge,
+            edge_hit_map=edge_hit_map,
+            edge_miss_cost=edge_miss_cost,
+            hop_cost=hop_cost,
+            direct_procedure_penalty=direct_procedure_penalty,
+            inactive_penalty=inactive_penalty,
+            time_info=time_info,
+            time_conf_min=time_conf_min,
+            time_bonus_max=time_bonus_max,
+            time_score_floor=time_score_floor,
+        )
 
         if not bundles:
             return ([], []) if return_bundles else []
 
-        # ── Time bonus ──
-        if time_info and time_info.has_time and time_info.confidence >= time_conf_min:
-            time_cfg = TimeBonusConfig(
-                enabled=True,
-                bonus_max=time_bonus_max,
-                score_floor=time_score_floor,
-                query_conf_min=time_conf_min,
-                created_at_weight=0.8,
-            )
-            for b in bundles:
-                proc_node = memory_fragment.nodes.get(b.procedure_id)
-                if proc_node:
-                    tb = compute_time_match({"payload": proc_node.attributes}, time_info, time_cfg)
-                    if tb.bonus > 0:
-                        b.score = max(time_score_floor, b.score - tb.bonus)
+        # 6. Edge and metadata output assembly
+        out_edges, top_bundles = _assemble_output_edges(
+            bundles=bundles,
+            top_k=top_k,
+            key_points_by_proc=key_points_by_proc,
+            ctx_points_by_proc=ctx_points_by_proc,
+            proc_point_edge=proc_point_edge,
+            best_by_id=best_by_id,
+        )
 
-        # ── Top-K selection ──
-        bundles = heapq.nsmallest(top_k, bundles, key=lambda b: b.score)
-        top_proc_ids = {b.procedure_id for b in bundles}
-        bundle_rank = {b.procedure_id: i for i, b in enumerate(bundles)}
-
-        # ── Output assembly ──
-        out_edges: List[Edge] = []
-        out_seen: Set[Tuple[str, str]] = set()
-
-        def push_edge(e: Edge):
-            k = (str(e.node1.id), str(e.node2.id))
-            rk = (k[1], k[0])
-            if k in out_seen or rk in out_seen:
-                return
-            out_seen.add(k)
-            out_edges.append(e)
-
-        for b in bundles:
-            pid = b.procedure_id
-
-            # Best-path edge
-            if b.best_point_id:
-                e = proc_point_edge.get((pid, b.best_point_id))
-                if e:
-                    push_edge(e)
-
-            # All direct point edges for this procedure
-            for pt in key_points_by_proc.get(pid, set()):
-                e = proc_point_edge.get((pid, pt))
-                if e:
-                    push_edge(e)
-            for pt in ctx_points_by_proc.get(pid, set()):
-                e = proc_point_edge.get((pid, pt))
-                if e:
-                    push_edge(e)
-
-        # Sort by bundle rank → edge cost
-        def _edge_proc(e: Edge) -> str:
-            for nid in (str(e.node1.id), str(e.node2.id)):
-                if nid in top_proc_ids:
-                    return nid
-            return ""
-
-        def _sort_key(e: Edge):
-            owner = _edge_proc(e)
-            rank = bundle_rank.get(owner, 10**9)
-            cost = min(direct_cost(str(e.node1.id)), direct_cost(str(e.node2.id)))
-            return (rank, cost)
-
-        out_edges.sort(key=_sort_key)
-
-        logger.info(f"[procedural] Returning {len(out_edges)} edges for {len(bundles)} procedures")
+        logger.info(f"[procedural] Returning {len(out_edges)} edges for {len(top_bundles)} procedures")
 
         # ── Return ──
         if return_bundles:
@@ -589,7 +676,7 @@ async def procedural_bundle_search(
                     "best_context_pack_id": None,
                     "best_context_point_id": b.best_point_id if b.best_path == "context_point" else None,
                 }
-                for b in bundles
+                for b in top_bundles
             ]
 
             TraceManager.event(
@@ -611,3 +698,4 @@ async def procedural_bundle_search(
     except Exception as e:
         logger.error("procedural_bundle_search error. query=%s error=%s", query, e)
         raise
+

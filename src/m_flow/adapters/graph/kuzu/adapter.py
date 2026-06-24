@@ -120,8 +120,34 @@ class KuzuAdapter(GraphProvider):
         self.conn.execute(query, {"id": node_id, "type": node_type, "name": name, "props": props_str})
 
     async def add_nodes(self, nodes: List[Any]) -> None:
+        if not nodes:
+            return
+
+        batch = []
         for node in nodes:
-            await self.add_node(node)
+            merged_props = _merge_node_props(node, None)
+            node_id = str(merged_props.get("id"))
+            node_type = str(merged_props.get("type", "Node"))
+            name = str(merged_props.get("name", node_id))
+
+            core_keys = {"id", "type", "name"}
+            extra_props = {k: v for k, v in merged_props.items() if k not in core_keys}
+            props_str = json.dumps(extra_props)
+
+            batch.append({
+                "id": node_id,
+                "type": node_type,
+                "name": name,
+                "props": props_str
+            })
+
+        query = """
+            UNWIND $batch AS item
+            MERGE (n:Node {id: item.id})
+            ON MATCH SET n.type = item.type, n.name = item.name, n.properties = item.props
+            ON CREATE SET n.type = item.type, n.name = item.name, n.properties = item.props
+        """
+        self.conn.execute(query, {"batch": batch})
 
     async def has_node(self, node_id: str) -> bool:
         result = self.conn.execute("MATCH (n:Node {id: $id}) RETURN count(n) AS cnt", {"id": str(node_id)})
@@ -144,19 +170,31 @@ class KuzuAdapter(GraphProvider):
         return out
 
     async def get_nodes(self, ids: List[str]) -> List[NodeProps]:
-        nodes = []
-        for nid in ids:
-            n = await self.get_node(nid)
-            if n:
-                nodes.append(n)
-        return nodes
+        if not ids:
+            return []
+        ids_str = [str(nid) for nid in ids]
+        result = self.conn.execute("MATCH (n:Node) WHERE n.id IN $ids RETURN n", {"ids": ids_str})
+        nodes = {}
+        while result.has_next():
+            row = result.get_next()[0]
+            out = {"id": row["id"], "type": row["type"], "name": row["name"]}
+            if row.get("properties"):
+                try:
+                    extra = json.loads(row["properties"])
+                    out.update(extra)
+                except Exception:
+                    pass
+            nodes[row["id"]] = out
+        return [nodes[nid] for nid in ids_str if nid in nodes]
 
     async def delete_node(self, node_id: str) -> None:
         self.conn.execute("MATCH (n:Node {id: $id}) DETACH DELETE n", {"id": str(node_id)})
 
     async def delete_nodes(self, ids: List[str]) -> None:
-        for nid in ids:
-            await self.delete_node(nid)
+        if not ids:
+            return
+        ids_str = [str(nid) for nid in ids]
+        self.conn.execute("MATCH (n:Node) WHERE n.id IN $ids DETACH DELETE n", {"ids": ids_str})
 
     async def add_edge(
         self,
@@ -180,12 +218,44 @@ class KuzuAdapter(GraphProvider):
         self.conn.execute(query, {"src": str(src), "dst": str(dst), "label": rel, "props": props_str})
 
     async def add_edges(self, edges: List[EdgeTuple]) -> None:
+        if not edges:
+            return
+
+        # 1. First batch-merge referenced node placeholders to avoid FK errors
+        node_ids = set()
+        for edge in edges:
+            node_ids.add(str(edge[0]))
+            node_ids.add(str(edge[1]))
+
+        if node_ids:
+            self.conn.execute("""
+                UNWIND $ids AS id
+                MERGE (n:Node {id: id})
+                ON CREATE SET n.type = 'Node', n.name = id, n.properties = '{}'
+            """, {"ids": list(node_ids)})
+
+        # 2. Batch-merge all edges
+        batch = []
         for edge in edges:
             src = str(edge[0])
             dst = str(edge[1])
             rel = str(edge[2])
             props = edge[3] if len(edge) > 3 else {}
-            await self.add_edge(src, dst, rel, props)
+            props_str = json.dumps(props) if props else "{}"
+            batch.append({
+                "src": src,
+                "dst": dst,
+                "label": rel,
+                "props": props_str
+            })
+
+        self.conn.execute("""
+            UNWIND $edges AS edge
+            MATCH (a:Node {id: edge.src}), (b:Node {id: edge.dst})
+            MERGE (a)-[e:Edge {label: edge.label}]->(b)
+            ON MATCH SET e.properties = edge.props
+            ON CREATE SET e.properties = edge.props
+        """, {"edges": batch})
 
     async def has_edge(self, src: str, dst: str, rel: str) -> bool:
         query = """
@@ -196,7 +266,35 @@ class KuzuAdapter(GraphProvider):
         return result.get_next()[0] > 0
 
     async def has_edges(self, edges: List[EdgeTuple]) -> List[EdgeTuple]:
-        return [e for e in edges if await self.has_edge(str(e[0]), str(e[1]), str(e[2]))]
+        if not edges:
+            return []
+
+        batch = []
+        mapping = {}
+        for e in edges:
+            src = str(e[0])
+            dst = str(e[1])
+            label = str(e[2])
+            batch.append({
+                "src": src,
+                "dst": dst,
+                "label": label
+            })
+            mapping[(src, dst, label)] = e
+
+        query = """
+            UNWIND $batch AS edge
+            MATCH (a:Node {id: edge.src})-[rel:Edge {label: edge.label}]->(b:Node {id: edge.dst})
+            RETURN edge.src, edge.dst, edge.label
+        """
+        result = self.conn.execute(query, {"batch": batch})
+        existing = []
+        while result.has_next():
+            row = result.get_next()
+            key = (str(row[0]), str(row[1]), str(row[2]))
+            if key in mapping:
+                existing.append(mapping[key])
+        return existing
 
     async def get_edges(self, node_id: str) -> List[EdgeTriple]:
         # Outgoing
@@ -221,7 +319,7 @@ class KuzuAdapter(GraphProvider):
                 if n.get("properties"):
                     try:
                         out.update(json.loads(n["properties"]))
-                    except:
+                    except Exception:
                         pass
                 return out
             return (to_dict(a_node), label, to_dict(b_node))
@@ -251,7 +349,7 @@ class KuzuAdapter(GraphProvider):
             if row.get("properties"):
                 try:
                     props.update(json.loads(row["properties"]))
-                except:
+                except Exception:
                     pass
             nodes.append((row["id"], props))
 
@@ -264,7 +362,7 @@ class KuzuAdapter(GraphProvider):
             if row[3]:
                 try:
                     eprops = json.loads(row[3])
-                except:
+                except Exception:
                     pass
             edges.append((row[0], row[1], row[2], eprops))
 
@@ -282,26 +380,69 @@ class KuzuAdapter(GraphProvider):
         self,
         attribute_filters: List[Dict[str, List[Union[str, int]]]],
     ) -> Tuple[List[NodeTuple], List[EdgeTuple]]:
-        # For simplicity, fallback to fetching all and filtering in python since
-        # attributes are hidden inside a JSON string.
-        nodes, edges = await self.get_graph_data()
+        if not attribute_filters:
+            return [], []
 
-        matched_nodes = []
-        for n_id, data in nodes:
-            for f in attribute_filters:
-                match = True
-                for k, v_list in f.items():
-                    if data.get(k) not in v_list:
-                        match = False
-                        break
-                if match:
-                    matched_nodes.append((n_id, data))
-                    break
+        or_parts = []
+        params = {}
+        for i, flt in enumerate(attribute_filters):
+            and_parts = []
+            if not flt:
+                and_parts.append("true")
+            else:
+                for k, vals in flt.items():
+                    pname = f"vals_{i}_{k}"
+                    if k in {"id", "type", "name"}:
+                        and_parts.append(f"n.{k} IN ${pname}")
+                        params[pname] = [str(v) for v in vals]
+                    else:
+                        and_parts.append(f"json_extract(n.properties, '$.{k}') IN ${pname}")
+                        params[pname] = [json.dumps(v) for v in vals]
+            if and_parts:
+                or_parts.append(f"({' AND '.join(and_parts)})")
 
-        matched_ids = {n[0] for n in matched_nodes}
-        matched_edges = [e for e in edges if e[0] in matched_ids and e[1] in matched_ids]
+        if not or_parts:
+            return [], []
 
-        return matched_nodes, matched_edges
+        where_clause = " OR ".join(or_parts)
+
+        # 1. Fetch matching nodes natively
+        node_query = f"""
+            MATCH (n:Node)
+            WHERE {where_clause}
+            RETURN n.id, n.type, n.name, n.properties
+        """
+        res_nodes = self.conn.execute(node_query, params)
+        nodes = []
+        while res_nodes.has_next():
+            row = res_nodes.get_next()
+            props = {"id": row[0], "type": row[1], "name": row[2]}
+            if row[3]:
+                try:
+                    props.update(json.loads(row[3]))
+                except Exception:
+                    pass
+            nodes.append((row[0], props))
+
+        # 2. Fetch edges linking matching nodes natively
+        where_clause_a = where_clause.replace("n.", "a.")
+        where_clause_b = where_clause.replace("n.", "b.")
+        edge_query = f"""
+            MATCH (a:Node)-[e:Edge]->(b:Node)
+            WHERE ({where_clause_a}) AND ({where_clause_b})
+            RETURN a.id, b.id, e.label, e.properties
+        """
+        res_edges = self.conn.execute(edge_query, params)
+        edges = []
+        while res_edges.has_next():
+            row = res_edges.get_next()
+            eprops = {}
+            if row[3]:
+                try:
+                    eprops = json.loads(row[3])
+                except Exception:
+                    pass
+            edges.append((row[0], row[1], row[2], eprops))
 
     async def get_neighbors(self, node_id: str) -> List[NodeProps]:
         edges = await self.get_edges(node_id)
