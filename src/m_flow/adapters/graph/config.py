@@ -111,6 +111,12 @@ def get_graph_config() -> GraphConfig:
     try:
         from mflow_cpg import get_config
         unified_cfg = get_config()
+        provider = os.getenv("GRAPH_DATABASE_PROVIDER", os.getenv("MFLOW_GRAPH_DATABASE_PROVIDER", "neo4j"))
+        if provider.lower() == "kuzu":
+            return GraphConfig(
+                graph_database_provider="kuzu",
+                graph_dataset_database_handler="kuzu"
+            )
         return GraphConfig(
             graph_database_provider="neo4j",
             graph_database_url=unified_cfg.neo4j.uri,

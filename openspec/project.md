@@ -14,10 +14,11 @@ The unified architecture aims to bridge the gap between **business rules and dev
 
 ### Languages & Execution
 - **Python 3.11+**
-- **Docker & Docker Compose** (for Neo4j and MCP server)
+- **Docker & Docker Compose** (Optional, only for remote Neo4j + SSE mode)
 
 ### Backends
-- **Neo4j (5.x)**: The single unified graph database storing both M-Flow cognitive memories (Episodes, Facets, Entities) and OmniCPG code structures (Modules, Classes, Methods, CFG, DFG, Call Graphs).
+- **Kuzu**: Default database for local mode. Embedded, in-process, zero-dependency.
+- **Neo4j (5.x)**: Optional database for remote/production mode. Can be run via Docker.
 - **Ollama / GPUStack**: For local LLM processing (semantic summaries, intent extraction) and text embeddings (e.g., `nomic-embed-text`, `bge-m3`).
 
 ### Core Frameworks

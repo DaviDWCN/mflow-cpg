@@ -290,38 +290,32 @@ def start_ui(
 
     # MCP server
     if start_mcp:
-        _log.info("Starting MCP server (Docker)...")
+        _log.info("Starting MCP server...")
         try:
-            import uuid as _uuid
-
-            img = "m_flow/m_flow-mcp:main"
-            subprocess.run(["docker", "pull", img], check=True)
-            cname = f"m_flow-mcp-{_uuid.uuid4().hex[:8]}"
+            import sys
             cmd = [
-                "docker",
-                "run",
-                "--name",
-                cname,
-                "-p",
-                f"{mcp_port}:8000",
-                "--rm",
-                "-e",
-                "TRANSPORT_MODE=sse",
+                sys.executable,
+                "-m",
+                "mflow_cpg.mcp_server",
+                "--transport",
+                "sse",
+                "--port",
+                str(mcp_port),
             ]
+            env = os.environ.copy()
             if start_backend:
-                cmd += ["-e", f"API_URL=http://localhost:{backend_port}"]
-            else:
-                cmd += ["--env-file", str(Path.cwd() / ".env")]
-            cmd.append(img)
+                env["API_URL"] = f"http://localhost:{backend_port}"
+
             mcp_proc = subprocess.Popen(
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                env=env,
                 preexec_fn=os.setsid if hasattr(os, "setsid") else None,
             )
             _stream_output(mcp_proc, "stdout", "[MCP]", "\033[34m")
             _stream_output(mcp_proc, "stderr", "[MCP]", "\033[34m")
-            pid_callback((mcp_proc.pid, cname))
+            pid_callback(mcp_proc.pid)
             _log.info("✓ MCP at http://127.0.0.1:%d/sse", mcp_port)
         except Exception as e:
             _log.error("MCP start failed: %s", e)

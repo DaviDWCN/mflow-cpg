@@ -2,7 +2,11 @@
 
 This project integrates **M-Flow** (a semantic memory knowledge graph layer) and **OmniCPG** (a static analysis Code Property Graph engine) into a unified codebase.
 
-Both systems now share a single **Neo4j** graph database backend and are configured through a single unified `config.yaml` file.
+Both systems support two database backends:
+1. **Kuzu (Embedded)**: Used for local, lightweight development. No Docker or external database servers required.
+2. **Neo4j**: Used for remote or large-scale projects. Can be run via Docker or cloud hosting.
+
+All components are configured through a single unified `config.yaml` and environment variables.
 
 ---
 
@@ -26,16 +30,21 @@ All project documentation lives in [`openspec/`](openspec/) — the **single sou
 |----------|---------|
 | [`openspec/project.md`](openspec/project.md) | Project context, stack, conventions (read first) |
 | [`openspec/AGENTS.md`](openspec/AGENTS.md) | Guide for AI assistants / MCP workflow |
+| [`agent_mcp_guide.md`](agent_mcp_guide.md) | Coding Agents MCP Integration & Maintenance Guide (Local/Remote) |
 | [`openspec/specs/`](openspec/specs/) | Capability specs (Requirements + Scenarios) |
 | [`openspec/changes/`](openspec/changes/) | In-flight proposals and archive |
 
 ---
 
-## Quick Start (with Ollama and Neo4j)
+## Quick Start (Local Mode - No Docker)
 
-1. Run Neo4j locally or in Docker.
+1. Setup environment variables in `.env`:
+   ```ini
+   MFLOW_GRAPH_DATABASE_PROVIDER=kuzu
+   GRAPH_DATABASE_PROVIDER=kuzu
+   ```
 2. Run Ollama with your chosen models (e.g. `llama3` and `nomic-embed-text`).
-3. Setup `config.yaml` with your connection parameters and model names.
+3. Setup `config.yaml` with your model names.
 4. Install dependencies:
    ```bash
    pip install -e .

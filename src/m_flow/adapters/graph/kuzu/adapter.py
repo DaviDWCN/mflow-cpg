@@ -67,7 +67,7 @@ class KuzuAdapter(GraphProvider):
         """Create basic Node and Edge tables if they don't exist."""
         # Check existing tables
         result = self.conn.execute("CALL show_tables() RETURN *;")
-        tables = [row["name"] for row in result.get_as_dict()] if result.has_next() else []
+        tables = [row["name"] for row in result.rows_as_dict()] if result.has_next() else []
 
         # Simplified schema for generic graph operations
         if "Node" not in tables:

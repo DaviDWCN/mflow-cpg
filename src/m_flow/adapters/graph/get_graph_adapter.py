@@ -72,7 +72,15 @@ def _build_adapter(
             os.makedirs(storage_dir, exist_ok=True)
             db_path = os.path.join(storage_dir, graph_database_name or "m_flow_graph_kuzu")
         else:
-            db_path = os.path.join(graph_file_path, graph_database_name or "")
+            if graph_database_name:
+                db_path = os.path.join(graph_file_path, graph_database_name)
+            else:
+                db_path = graph_file_path
+            
+            # Clean trailing separators to avoid dirname returning the path itself
+            db_path = db_path.rstrip("/\\")
+            if os.path.dirname(db_path):
+                os.makedirs(os.path.dirname(db_path), exist_ok=True)
 
         return KuzuAdapter(db_path=db_path)
 
